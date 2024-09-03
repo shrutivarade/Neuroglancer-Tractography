@@ -24,7 +24,7 @@ interface TrkHeader {
   hdr_size: number;
 }
 
-// Function to read the TRK header
+// Function to read the TRK header from a buffer
 function readTrkHeader(buffer: Buffer): TrkHeader {
   let offset = 0;
 
@@ -37,9 +37,6 @@ function readTrkHeader(buffer: Buffer): TrkHeader {
   const readShorts = (length: number): number[] => {
     const values: number[] = [];
     for (let i = 0; i < length; i++) {
-      if (offset + 2 > buffer.length) {
-        throw new Error(`Offset out of range while reading shorts: ${offset}`);
-      }
       values.push(buffer.readInt16LE(offset));
       offset += 2;
     }
@@ -49,9 +46,6 @@ function readTrkHeader(buffer: Buffer): TrkHeader {
   const readFloats = (length: number): number[] => {
     const values: number[] = [];
     for (let i = 0; i < length; i++) {
-      if (offset + 4 > buffer.length) {
-        throw new Error(`Offset out of range while reading floats: ${offset}`);
-      }
       values.push(buffer.readFloatLE(offset));
       offset += 4;
     }
@@ -63,9 +57,6 @@ function readTrkHeader(buffer: Buffer): TrkHeader {
     for (let i = 0; i < rows; i++) {
       const row: number[] = [];
       for (let j = 0; j < cols; j++) {
-        if (offset + 4 > buffer.length) {
-          throw new Error(`Offset out of range while reading matrix: ${offset}`);
-        }
         row.push(buffer.readFloatLE(offset));
         offset += 4;
       }
@@ -75,9 +66,6 @@ function readTrkHeader(buffer: Buffer): TrkHeader {
   };
 
   const readUChar = (): boolean => {
-    if (offset + 1 > buffer.length) {
-      throw new Error(`Offset out of range while reading uchar: ${offset}`);
-    }
     const value = buffer.readUInt8(offset);
     offset += 1;
     return value !== 0;
@@ -122,14 +110,14 @@ function readTrkHeader(buffer: Buffer): TrkHeader {
 
   header.vox_to_ras = readMatrix(4, 4);
 
-  offset += 444; // Skip reserved bytes
+  offset += 444; // Skipped: Reserved space for future version.
 
   header.voxel_order = readChars(4);
-  offset += 4; // Skip pad2
+  offset += 4; // Skipped: paddings
 
   header.image_orientation_patient = readFloats(6) as [number, number, number, number, number, number];
 
-  offset += 2; // Skip pad1
+  offset += 2; // Skipped: paddings
 
   header.invert_x = readUChar();
   header.invert_y = readUChar();
@@ -137,8 +125,6 @@ function readTrkHeader(buffer: Buffer): TrkHeader {
   header.swap_xy = readUChar();
   header.swap_yz = readUChar();
   header.swap_zx = readUChar();
-
-  offset += 2; // Skip padding
 
   header.n_count = buffer.readInt32LE(offset);
   offset += 4;
@@ -151,7 +137,6 @@ function readTrkHeader(buffer: Buffer): TrkHeader {
 
   return header;
 }
-
 
 // Function to print the header in a readable format
 function printTrkHeader(header: TrkHeader): void {
@@ -179,35 +164,45 @@ function printTrkHeader(header: TrkHeader): void {
   console.log(`Header Size: ${header.hdr_size}`);
 }
 
-// Main function to read and print metadata
-async function main() {
-  const trkFileUrl = "https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67";
-
+// Function to stream only first 1000 bytes from the TRK file and process the header
+async function streamAndProcessHeader(url: string, start: number, end: number) {
   try {
-    // Fetch the TRK file data directly
-    const response = await axios.get(trkFileUrl, {
+    const response = await axios.get(url, {
       responseType: 'arraybuffer',
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
+      headers: {
+        'Range': `bytes=${start}-${end}`
+      }
     });
 
-    // console.log(response)
-
+    console.log(`Received ${response.data.byteLength} bytes from range ${start}-${end}`);
     const buffer = Buffer.from(response.data);
 
-    // Parse the header
-    const header = readTrkHeader(buffer.slice(0, 1000));
+    
+    if (buffer.length < 1000) {
+      console.error('Error: Buffer is too small to contain a valid header.');
+      return;
+    }
 
-    // Print the header information
+    
+    const header = readTrkHeader(buffer);
     printTrkHeader(header);
 
   } catch (error) {
     if (error instanceof Error) {
-      console.error('Error downloading or processing the TRK file:', error.message);
+      console.error('Error streaming or processing the TRK file:', error.message);
     } else {
       console.error('Unexpected error:', error);
     }
   }
+}
+
+
+async function main() {
+  const trkFileUrl = "https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67";
+  
+  const headerChunkSize = 1000;  
+
+  await streamAndProcessHeader(trkFileUrl, 0, headerChunkSize - 1);
 }
 
 // Execute the main function
