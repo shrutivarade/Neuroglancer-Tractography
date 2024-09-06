@@ -225,7 +225,7 @@ async function streamAndProcessTrackDataInChunks(url: string, start: number) {
         const CHUNK_SIZE = 10 * 1024 * 1024;  // 10 MB per chunk
         let totalBytes = start;
         let endReached = false;
-        const outputFilePath = path.join(__dirname, 'track_data_output.txt');
+        const outputFilePath = path.join(__dirname, 'track_data_VoxelToRASInChunks.txt');
         const writeStream = fs.createWriteStream(outputFilePath);
 
         while (!endReached) {

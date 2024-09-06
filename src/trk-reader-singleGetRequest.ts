@@ -23,7 +23,7 @@ async function streamAndProcessTrackData(url: string, start: number) {
     console.log(`\nReceived ${response.data.byteLength} bytes starting from byte ${start}`);
 
     // Write this data to a file
-    const outputFilePath = path.join(__dirname, 'track_data_output.txt');
+    const outputFilePath = path.join(__dirname, 'track_singleGetRequest.txt');
     const writeStream = fs.createWriteStream(outputFilePath);
 
     // Record the start time for processing
