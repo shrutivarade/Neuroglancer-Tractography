@@ -1,0 +1,29 @@
+{
+  "@type": "neuroglancer_skeletons",
+  "num_vertices": 16,
+  "num_edges": 15,
+  "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "vertex_attributes": {
+    "attributes": [
+      {
+        "id": "position",
+        "data_type": "float32",
+        "num_components": 3
+      }
+    ]
+  },
+  "segment_properties": "segment_properties_directory"
+}
