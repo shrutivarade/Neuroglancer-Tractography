@@ -21,32 +21,37 @@ export class TrackProcessor {
         },
       });
       const buffer = Buffer.from(response.data);
-      // Utilize the TrkHeaderProcessor to read and print the header
+      // Read the header using TrkHeaderProcessor and store it in the globalHeader
       this.globalHeader = TrkHeaderProcessor.readTrkHeader(buffer);
       TrkHeaderProcessor.printTrkHeader(this.globalHeader);
     } catch (error) {
-      console.error('Error streaming or processing the TRK file:', error);
+      console.error('Error streaming or processing the TRK file header:', error);
     }
   }
 
-  // Combined data fetching and processing for efficiency
-  async processTrackData(url: string, start: number, chunkSize: number = 10 * 1024 * 1024, trackToProcess: number) {
+  // Efficient data processing, with proper handling of the last chunk
+  async processTrackData(
+    url: string,
+    start: number,
+    chunkSize: number = 10 * 1024 * 1024,
+    trackToProcess: number
+  ) {
     if (!this.globalHeader) {
       console.error('Error: Global header is not initialized.');
       return;
     }
 
     const outputFilePath = path.join(__dirname, 'track_data.txt');
-    fs.writeFileSync(outputFilePath, ''); // Clear the file content at the start
+    fs.writeFileSync(outputFilePath, ''); // Clear the file at the start
 
     let byteOffset = start;
     let trackNumber = 1;
-    let trackProcessedFlag = false;
+    let track108Processed = false;
     let totalFileSize: number | null = null;
 
     try {
       while (true) {
-        // First request the next chunk of the file
+        // First request for data chunk
         const response = await axios.get(url, {
           responseType: 'arraybuffer',
           headers: {
@@ -56,7 +61,7 @@ export class TrackProcessor {
           maxBodyLength: Infinity,
         });
 
-        // If we haven't determined the total file size yet, we can get it from the 'Content-Range' header
+        // Determine the total file size from the 'Content-Range' header
         if (totalFileSize === null && response.headers['content-range']) {
           const contentRange = response.headers['content-range'];
           const match = contentRange.match(/\/(\d+)$/);
@@ -68,6 +73,7 @@ export class TrackProcessor {
 
         const buffer = Buffer.from(response.data);
 
+        // Handle the case when there is no more data
         if (buffer.length === 0) {
           console.log('No more data to read.');
           break;
@@ -83,7 +89,7 @@ export class TrackProcessor {
         let vertexIndex = 0;
 
         while (offset < buffer.length) {
-          const n_points = buffer.readInt32LE(offset); // Number of points in this track
+          const n_points = buffer.readInt32LE(offset); // Read the number of points
           offset += 4;
 
           if (n_points <= 0) {
@@ -91,13 +97,14 @@ export class TrackProcessor {
             break;
           }
 
-          // Log track data
+          // Log track data to the file
           writeStream.write(`Track ${trackNumber} processed, number of points: ${n_points}\n`);
-          // console.log(`Track ${trackNumber} processed, number of points: ${n_points}`);
 
-          if (trackNumber === trackToProcess && !trackProcessedFlag) {
+          // Process track 108 if encountered and not yet processed
+          if (trackNumber === trackToProcess && !track108Processed) {
             console.log(`Processing track ${trackToProcess} with ${n_points} points.`);
 
+            // Read points and convert voxel to RAS
             for (let i = 0; i < n_points; i++) {
               const x = buffer.readFloatLE(offset);
               const y = buffer.readFloatLE(offset + 4);
@@ -107,22 +114,38 @@ export class TrackProcessor {
               const voxelPoint: [number, number, number] = [x, y, z];
               const rasPoint = VoxelToRASConverter.voxelToRAS(voxelPoint, this.globalHeader.vox_to_ras);
 
+              // Add vertex data
               vertices.push({ x: rasPoint[0], y: rasPoint[1], z: rasPoint[2] });
 
+              // Add edge data
               if (i > 0) {
                 edges.push({ vertex1: vertexIndex - 1, vertex2: vertexIndex });
               }
               vertexIndex++;
             }
 
-            const binaryOutputFilePath = `neuroglancer_skeleton_track_${trackToProcess}.bin`;
-            SkeletonWriter.writeSkeleton(vertices, edges, binaryOutputFilePath);
+            // // Write skeleton and info for track 108
+            // const binaryOutputFilePath = `neuroglancer_skeleton_track_${trackToProcess}.bin`;
+            // SkeletonWriter.writeSkeleton(vertices, edges, binaryOutputFilePath);
 
-            const infoOutputFilePath = `neuroglancer_skeleton_info_track_${trackToProcess}.json`;
-            SkeletonWriter.writeSkeletonInfo(vertices.length, edges.length, infoOutputFilePath);
+            // const infoOutputFilePath = `neuroglancer_skeleton_info_track_${trackToProcess}.json`;
+            // SkeletonWriter.writeSkeletonInfo(vertices.length, edges.length, infoOutputFilePath);
+
+
+            const outputDirectory = __dirname; // You can change this to any directory
+
+            // Generate paths for skeleton files
+            const { binaryFilePath } = SkeletonWriter.generateSkeletonFilePaths(trackToProcess, outputDirectory);
+
+            // Write the skeleton binary data
+            SkeletonWriter.writeSkeleton(vertices, edges, binaryFilePath);
+
+            // Write the skeleton metadata (always to "info.json")
+            SkeletonWriter.writeSkeletonInfo(vertices.length, edges.length, outputDirectory);
+
 
             console.log(`Track ${trackToProcess} skeleton and info files written.`);
-            trackProcessedFlag = true; // Set to true to avoid reprocessing
+            track108Processed = true; // Mark as processed
           } else {
             offset += n_points * 12; // Skip this track's data
           }
@@ -133,7 +156,7 @@ export class TrackProcessor {
         writeStream.end();
         byteOffset += buffer.byteLength; // Move to the next chunk
 
-        // Check if we've reached the end of the file
+        // If we've reached the end of the file, adjust the range request
         if (totalFileSize !== null && byteOffset >= totalFileSize) {
           console.log('Reached the end of the file.');
           break;

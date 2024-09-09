@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 
 export interface Vertex {
   x: number;
@@ -12,93 +13,99 @@ export interface Edge {
 }
 
 export class SkeletonWriter {
-  static writeSkeleton(vertices: Vertex[], edges: Edge[], binaryOutputFilePath: string) {
+  /**
+   * Writes the binary skeleton file for the given vertices and edges.
+   * 
+   * @param vertices Array of vertex positions.
+   * @param edges Array of edges between vertices.
+   * @param outputFilePath Path for the binary skeleton output.
+   */
+  static writeSkeleton(vertices: Vertex[], edges: Edge[], outputFilePath: string) {
     const vertexCount = vertices.length;
     const edgeCount = edges.length;
-    const headerSize = 16;
-    const vertexSize = 12;
-    const edgeSize = 8;
-    const bufferSize = headerSize + (vertexSize * vertexCount) + (edgeSize * edgeCount);
-    const buffer = Buffer.alloc(bufferSize);
 
+    // Calculate buffer size for skeleton: 16 bytes header + vertex positions + edges
+    const headerSize = 16; // 4 bytes for magic number, 4 for version, 4 for vertex count, 4 for edge count
+    const vertexSize = 12; // 3 floats (x, y, z), each 4 bytes
+    const edgeSize = 8;    // 2 uint32s (source and target), each 4 bytes
+    const bufferSize = headerSize + (vertexSize * vertexCount) + (edgeSize * edgeCount);
+
+    const buffer = Buffer.alloc(bufferSize);
     let offset = 0;
 
-    buffer.writeUInt32LE(0x6b6e736b, offset); // MAGIC_NUMBER
+    // Write the header
+    buffer.writeUInt32LE(0x6b6e736b, offset);  // Magic number "nsk"
     offset += 4;
-    buffer.writeUInt32LE(1, offset); // VERSION
+    buffer.writeUInt32LE(1, offset);  // Version number
     offset += 4;
-    buffer.writeUInt32LE(vertexCount, offset);
+    buffer.writeUInt32LE(vertexCount, offset);  // Number of vertices
     offset += 4;
-    buffer.writeUInt32LE(edgeCount, offset);
+    buffer.writeUInt32LE(edgeCount, offset);  // Number of edges
     offset += 4;
 
-    vertices.forEach((vertex) => {
-      buffer.writeFloatLE(vertex.x, offset);
-      buffer.writeFloatLE(vertex.y, offset + 4);
-      buffer.writeFloatLE(vertex.z, offset + 8);
+    // Write the vertices (3 floats per vertex: x, y, z)
+    for (let i = 0; i < vertexCount; i++) {
+      buffer.writeFloatLE(vertices[i].x, offset);
+      buffer.writeFloatLE(vertices[i].y, offset + 4);
+      buffer.writeFloatLE(vertices[i].z, offset + 8);
       offset += 12;
-    });
+    }
 
-    edges.forEach((edge) => {
-      buffer.writeUInt32LE(edge.vertex1, offset);
-      buffer.writeUInt32LE(edge.vertex2, offset + 4);
+    // Write the edges (2 uint32 per edge: vertex1, vertex2)
+    for (let i = 0; i < edgeCount; i++) {
+      buffer.writeUInt32LE(edges[i].vertex1, offset);
+      buffer.writeUInt32LE(edges[i].vertex2, offset + 4);
       offset += 8;
-    });
+    }
 
-    fs.writeFileSync(binaryOutputFilePath, buffer);
-    console.log(`Skeleton binary file written to ${binaryOutputFilePath}`);
+    // Write the buffer to a binary file
+    fs.writeFileSync(outputFilePath, buffer);
+    console.log(`Skeleton binary file written to ${outputFilePath}`);
   }
 
-  static writeSkeletonInfo(
-    vertexCount: number,
-    edgeCount: number,
-    infoOutputFilePath: string,
-    useRadius: boolean = false,
-    sharding: boolean = false
-  ) {
-    // Base structure for skeleton info
-    const skeletonInfo: any = {
-      "@type": "neuroglancer_skeletons",  // Skeleton file type
+  /**
+   * Writes the JSON skeleton metadata file as "info.json".
+   * 
+   * @param vertexCount Number of vertices in the skeleton.
+   * @param edgeCount Number of edges in the skeleton.
+   * @param outputDirectory Directory where the skeleton metadata file should be saved.
+   */
+  static writeSkeletonInfo(vertexCount: number, edgeCount: number, outputDirectory: string) {
+    const skeletonInfo = {
+      "@type": "neuroglancer_skeletons",
+      "transform": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],  // Identity transform for now, modify as needed
+      "vertex_attributes": [
+        {
+          "id": "position",  // Default position attribute
+          "data_type": "float32",
+          "num_components": 3  // x, y, z
+        }
+      ],
       "num_vertices": vertexCount,
-      "num_edges": edgeCount,
-      "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],  // Identity matrix (no transformation)
-      "vertex_attributes": {
-        attributes: [
-          {
-            id: "position",
-            data_type: "float32",
-            num_components: 3,
-          },
-        ],
-      },
+      "num_edges": edgeCount
     };
 
-    // Add a radius attribute if specified
-    if (useRadius) {
-      skeletonInfo.vertex_attributes.attributes.push({
-        id: "radius",
-        data_type: "float32",
-        num_components: 1,
-      });
-    }
+    // Path for the info.json file
+    const infoFilePath = path.join(outputDirectory, 'info.json');
 
-    // Add sharding information if specified
-    if (sharding) {
-      skeletonInfo.sharding = {
-        preshift_bits: 0,
-        minishard_bits: 6,
-        shard_bits: 10,
-        data_encoding: "gzip",
-        hash: "identity",
-        minishard_index_encoding: "gzip",
-      };
-    }
+    // Write the JSON file
+    fs.writeFileSync(infoFilePath, JSON.stringify(skeletonInfo, null, 2));
+    console.log(`Skeleton info file written to ${infoFilePath}`);
+  }
 
-    // Optional segment_properties field (can be removed if not needed)
-    skeletonInfo.segment_properties = "segment_properties_directory";
+  /**
+   * Generates the file paths for the skeleton's binary file.
+   * 
+   * @param segmentId The ID of the segment being processed.
+   * @param outputDirectory The directory where the skeleton files should be saved.
+   * @returns Object containing paths for both the binary file and the info file.
+   */
+  static generateSkeletonFilePaths(segmentId: string | number, outputDirectory: string) {
+    const binaryFileName = `${segmentId}.bin`;  // Binary file for skeleton data
 
-    // Write the info.json file
-    fs.writeFileSync(infoOutputFilePath, JSON.stringify(skeletonInfo, null, 2));
-    console.log(`Skeleton info file written to ${infoOutputFilePath}`);
+    return {
+      binaryFilePath: path.join(outputDirectory, binaryFileName),
+      infoFilePath: path.join(outputDirectory, 'info.json')  // Always "info.json"
+    };
   }
 }

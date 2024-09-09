@@ -1,0 +1,26 @@
+{
+  "@type": "neuroglancer_skeletons",
+  "transform": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "vertex_attributes": [
+    {
+      "id": "position",
+      "data_type": "float32",
+      "num_components": 3
+    }
+  ],
+  "num_vertices": 16,
+  "num_edges": 15
+}
