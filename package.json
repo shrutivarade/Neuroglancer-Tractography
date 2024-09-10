@@ -7,6 +7,6 @@
   },
   "scripts": {
   "build": "tsc",
-  "start": "node dist/trk-reader.js"
+  "start": "node dist/main.js"
   }
 }
