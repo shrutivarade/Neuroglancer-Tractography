@@ -13,6 +13,7 @@ async function main() {
     return;
   }
 
+
   // Get the number of tracks from the global header
   const numTracks = trackProcessor.globalHeader.n_count;
   const tracksPerChunk = 7000;

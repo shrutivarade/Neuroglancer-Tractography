@@ -82,7 +82,7 @@ export class TrackProcessor {
 
         // Check if adding this track will exceed the chunk size
         if (offset + bytesForTrack > chunkSize) {
-          console.log(`Track ${trackNumber} exceeds chunk size, moving to next chunk.`);
+          // console.log(`Track ${trackNumber} exceeds chunk size, moving to next chunk.`);
 
           // Update byteOffset for the next chunk and break
           byteOffset += buffer.byteLength;
@@ -105,7 +105,8 @@ export class TrackProcessor {
             offset += 12;
 
             const voxelPoint: [number, number, number] = [x, y, z];
-            const rasPoint = VoxelToRASConverter.voxelToRAS(voxelPoint, this.globalHeader.vox_to_ras);
+            const rasPoint = VoxelToRASConverter.voxelToRAS(voxelPoint, this.globalHeader);
+
 
             // Add vertex data
             vertices.push({ x: rasPoint[0], y: rasPoint[1], z: rasPoint[2] });
