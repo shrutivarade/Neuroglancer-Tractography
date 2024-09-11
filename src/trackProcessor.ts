@@ -2,7 +2,7 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { VoxelToRASConverter } from './voxelToRASConverter';
-import { SkeletonWriter, Vertex, Edge } from './skeletonWriter';
+// import { SkeletonWriter, Vertex, Edge } from './skeletonWriter';
 import { TrkHeader, TrkHeaderProcessor } from './trkHeader';
 
 // Define the ProcessState interface to track chunk processing state
@@ -53,7 +53,7 @@ export class TrackProcessor {
     const writeStream = fs.createWriteStream(outputFilePath, { flags: 'a' });
 
     let offset = 0;
-    let track108Processed = false;
+    let trackProcessed = false;
 
     try {
       const response = await axios.get(url, {
@@ -71,18 +71,18 @@ export class TrackProcessor {
         return { byteOffset, trackNumber, offset: 0 };
       }
 
-      const vertices: Vertex[] = [];
-      const edges: Edge[] = [];
+      // const vertices: Vertex[] = [];
+      // const edges: Edge[] = [];
       let vertexIndex = 0;
 
       while (offset < buffer.length) {
         // Read the number of points for the current track
         const n_points = buffer.readInt32LE(offset);
-        const bytesForTrack = n_points * 12 + 4; // 4 bytes for the number of points, 12 bytes per point
+        const bytesForTrack = n_points * 12; // 4 bytes for the number of points, 12 bytes per point
 
         // Check if adding this track will exceed the chunk size
         if (offset + bytesForTrack > chunkSize) {
-          // console.log(`Track ${trackNumber} exceeds chunk size, moving to next chunk.`);
+          console.log(`Track ${trackNumber} exceeds chunk size, moving to next chunk.`);
 
           // Update byteOffset for the next chunk and break
           byteOffset += buffer.byteLength;
@@ -95,7 +95,7 @@ export class TrackProcessor {
         // writeStream.write(`Track ${trackNumber} processed, number of points: ${n_points}\n`);
 
         // Process track 108 if needed
-        if (trackNumber === trackToProcess && !track108Processed) {
+        if (trackNumber === trackToProcess && !trackProcessed) {
           console.log(`\nProcessing track ${trackToProcess} with ${n_points} points.`);
 
           for (let i = 0; i < n_points; i++) {
@@ -113,30 +113,30 @@ export class TrackProcessor {
 
 
 
-            // Add vertex data
-            vertices.push({ x: rasPoint[0], y: rasPoint[1], z: rasPoint[2] });
+            // // Add vertex data
+            // vertices.push({ x: rasPoint[0], y: rasPoint[1], z: rasPoint[2] });
 
-            // Add edge data
-            if (i > 0) {
-              edges.push({ vertex1: vertexIndex - 1, vertex2: vertexIndex });
-            }
+            // // Add edge data
+            // if (i > 0) {
+            //   edges.push({ vertex1: vertexIndex - 1, vertex2: vertexIndex });
+            // }
             vertexIndex++;
           }
 
-          const outputDirectory = __dirname; // You can change this to any directory
+          // const outputDirectory = __dirname; // You can change this to any directory
 
           // Generate paths for skeleton files
-          const { binaryFilePath } = SkeletonWriter.generateSkeletonFilePaths(trackToProcess, outputDirectory);
+          // const { binaryFilePath } = SkeletonWriter.generateSkeletonFilePaths(1, outputDirectory);
 
-          // Write the skeleton binary data
-          SkeletonWriter.writeSkeleton(vertices, edges, binaryFilePath);
+          // // Write the skeleton binary data
+          // SkeletonWriter.writeSkeleton(vertices, edges, binaryFilePath);
 
-          // Write the skeleton metadata (always to "info.json")
-          // SkeletonWriter.writeSkeletonInfo(vertices.length, edges.length, outputDirectory);
-          SkeletonWriter.writeSkeletonInfo(outputDirectory);
+          // // Write the skeleton metadata (always to "info.json")
+          // // SkeletonWriter.writeSkeletonInfo(vertices.length, edges.length, outputDirectory);
+          // SkeletonWriter.writeSkeletonInfo(outputDirectory);
 
           console.log(`Track ${trackToProcess} skeleton and info files written.`);
-          track108Processed = true; // Mark as processed
+          trackProcessed = true; // Mark as processed
         } else {
           offset += n_points * 12; // Skip the remaining track data
         }

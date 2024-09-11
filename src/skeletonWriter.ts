@@ -1,133 +1,114 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
 
-export interface Vertex {
-  x: number;
-  y: number;
-  z: number;
-}
+class SkeletonWriter {
 
-export interface Edge {
-  vertex1: number;
-  vertex2: number;
-}
+  tracts: Float32Array[] = [
+    new Float32Array([/* tract data 1 */]),
+    new Float32Array([/* tract data 2 */]),
+    // more tracts...
+  ];
 
-export class SkeletonWriter {
-  /**
-   * Writes the binary skeleton file for the given vertices and edges.
-   * 
-   * @param vertices Array of vertex positions.
-   * @param edges Array of edges between vertices.
-   * @param outputFilePath Path for the binary skeleton output.
-   */
-  static writeSkeleton(vertices: Vertex[], edges: Edge[], outputFilePath: string) {
-    const vertexCount = vertices.length;
-    const edgeCount = edges.length;
+  
+  displayedIds: number[];
 
-    // Calculate buffer size for skeleton: 16 bytes header + vertex positions + edges
-    const headerSize = 16; // 4 bytes for magic number, 4 for version, 4 for vertex count, 4 for edge count
-    const vertexSize = 12; // 3 floats (x, y, z), each 4 bytes
-    const edgeSize = 8;    // 2 uint32s (source and target), each 4 bytes
-    const bufferSize = headerSize + (vertexSize * vertexCount) + (edgeSize * edgeCount);
-
-    const buffer = Buffer.alloc(bufferSize);
-    let offset = 0;
-
-    // Write the header
-    buffer.writeUInt32LE(0x6b6e736b, offset);  // Magic number "nsk"
-    offset += 4;
-    buffer.writeUInt32LE(1, offset);  // Version number
-    offset += 4;
-    buffer.writeUInt32LE(vertexCount, offset);  // Number of vertices
-    offset += 4;
-    buffer.writeUInt32LE(edgeCount, offset);  // Number of edges
-    offset += 4;
-
-    // Write the vertices (3 floats per vertex: x, y, z)
-    for (let i = 0; i < vertexCount; i++) {
-      buffer.writeFloatLE(vertices[i].x, offset);
-      buffer.writeFloatLE(vertices[i].y, offset + 4);
-      buffer.writeFloatLE(vertices[i].z, offset + 8);
-      offset += 12;
-    }
-
-    // Write the edges (2 uint32 per edge: vertex1, vertex2)
-    for (let i = 0; i < edgeCount; i++) {
-      buffer.writeUInt32LE(edges[i].vertex1, offset);
-      buffer.writeUInt32LE(edges[i].vertex2, offset + 4);
-      offset += 8;
-    }
-
-    // Write the buffer to a binary file
-    fs.writeFileSync(outputFilePath, buffer);
-    console.log(`Skeleton binary file written to ${outputFilePath}`);
+  constructor() {
+    this.displayedIds = [];
   }
 
-  /**
-   * Writes the JSON skeleton metadata file as "info.json".
-   * 
-   * @param vertexCount Number of vertices in the skeleton.
-   * @param edgeCount Number of edges in the skeleton.
-   * @param outputDirectory Directory where the skeleton metadata file should be saved.
-   */
-  // static writeSkeletonInfo(vertexCount: number, edgeCount: number, outputDirectory: string) {
-  //   const skeletonInfo = {
-  //     "@type": "neuroglancer_skeletons",
-  //     // "transform": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],  // Identity transform for now, modify as needed
-  //     "vertex_attributes": [
-  //       {
-  //         "id": "position",  // Default position attribute
-  //         "data_type": "float32",
-  //         "num_components": 3  // x, y, z
-  //       }
-  //     ],
-  //     "num_vertices": vertexCount,
-  //     "num_edges": edgeCount
-  //   };
+  // Method to filter displayedIds (you can replace this with your actual logic)
+  _filter() {
+    // Assume _filter() assigns some valid ids to displayedIds
+    this.displayedIds = [/* filtered ids */];
+  }
 
-  //   // Path for the info.json file
-  //   const infoFilePath = path.join(outputDirectory, 'info.json');
+  // Method to get a skeleton from a tract (replace this with actual implementation)
+  getSkeleton(tract: Float32Array): { vertices: Float32Array, edges: Uint32Array, orientations: Float32Array } {
+    // Replace with the actual skeleton calculation logic
+    return {
+      vertices: new Float32Array(tract.length * 3),
+      edges: new Uint32Array(tract.length * 2),
+      orientations: new Float32Array(tract.length * 3),
+    };
+  }
 
-  //   // Write the JSON file
-  //   fs.writeFileSync(infoFilePath, JSON.stringify(skeletonInfo, null, 2));
-  //   console.log(`Skeleton info file written to ${infoFilePath}`);
-  // }
+  // Integrated function to write the skeleton, previously _precomputed_skel_data_combined
+  writeSkeleton(id: number = 1): Buffer {
+    if (id !== 1) {
+      return Buffer.alloc(0);
+    }
+  
+    this._filter();
+  
+    let numVertices = 0;
+    let numEdges = 0;
+    let verticesBuffer = Buffer.alloc(0);
+    let edgesBuffer = Buffer.alloc(0);
+    let orientationsBuffer = Buffer.alloc(0);
+  
+    for (const tractId of this.displayedIds) {
+      const tract = this.getTractById(tractId).map(val => val * 1E6); // nanometers
+      const { vertices, edges, orientations } = this.getSkeleton(new Float32Array(tract));
+  
+      verticesBuffer = Buffer.concat([verticesBuffer, Buffer.from(vertices.buffer)]);
+      edgesBuffer = Buffer.concat([edgesBuffer, Buffer.from(edges.buffer)]);
+      orientationsBuffer = Buffer.concat([orientationsBuffer, Buffer.from(orientations.buffer)]);
+  
+      numVertices += tract.length;
+      numEdges += tract.length - 1;
+    }
+  
+    // Create the final binary tract buffer
+    const bintract = Buffer.alloc(8 + verticesBuffer.length + edgesBuffer.length + orientationsBuffer.length);
+  
+    // Write the number of vertices (little-endian)
+    bintract.writeUInt32LE(numVertices, 0);
+  
+    // Write the number of edges (little-endian)
+    bintract.writeUInt32LE(numEdges, 4);
+  
+    // Append the vertices, edges, and orientations to the buffer
+    verticesBuffer.copy(bintract, 8);
+    edgesBuffer.copy(bintract, 8 + verticesBuffer.length);
+    orientationsBuffer.copy(bintract, 8 + verticesBuffer.length + edgesBuffer.length);
+  
+    return bintract;
+  }
+  
 
-  static writeSkeletonInfo(outputDirectory: string) {
-    const skeletonInfo = {
+  // Placeholder method to get a tract by its ID
+  getTractById(id: number): Float32Array {
+    // Logic to return a tract by its ID (replace this with actual logic)
+    if (id < this.tracts.length) {
+      return this.tracts[id];
+    }
+    // Handle invalid IDs (optional)
+    console.error(`Tract ID ${id} is out of range`);
+    return new Float32Array([]);
+  }
+
+  // Keep the writeSkeletonInfo method as it is
+  writeSkeletonInfo(outputPath: string) {
+    const info = {
       "@type": "neuroglancer_skeletons",
-      // "transform": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],  // Identity transform for now, modify as needed
       "vertex_attributes": [
         {
           "id": "orientation",
           "data_type": "float32",
-          "num_components": 3  // x, y, z
-        }
+          "num_components": 3,
+        },
       ],
       "segment_properties": "prop",
     };
-
-    // Path for the info.json file
-    const infoFilePath = path.join(outputDirectory, 'info.json');
-
-    // Write the JSON file
-    fs.writeFileSync(infoFilePath, JSON.stringify(skeletonInfo, null, 2));
-    console.log(`Skeleton info file written to ${infoFilePath}`);
+    fs.writeFileSync(outputPath, JSON.stringify(info, null, 2));
   }
 
-  /**
-   * Generates the file paths for the skeleton's binary file.
-   * 
-   * @param segmentId The ID of the segment being processed.
-   * @param outputDirectory The directory where the skeleton files should be saved.
-   * @returns Object containing paths for both the binary file and the info file.
-   */
-  static generateSkeletonFilePaths(segmentId: string | number, outputDirectory: string) {
-    const binaryFileName = `${segmentId}.bin`;  // Binary file for skeleton data
-
+  // Keep the generateSkeletonFilePaths method as it is
+  generateSkeletonFilePaths(basePath: string): { infoPath: string, skeletonPath: string } {
     return {
-      binaryFilePath: path.join(outputDirectory, binaryFileName),
-      infoFilePath: path.join(outputDirectory, 'info.json')  // Always "info.json"
+      infoPath: `${basePath}/info`,
+      skeletonPath: `${basePath}/skeleton`,
     };
   }
 }
+
+export default SkeletonWriter;
