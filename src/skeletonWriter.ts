@@ -70,19 +70,41 @@ export class SkeletonWriter {
    * @param edgeCount Number of edges in the skeleton.
    * @param outputDirectory Directory where the skeleton metadata file should be saved.
    */
-  static writeSkeletonInfo(vertexCount: number, edgeCount: number, outputDirectory: string) {
+  // static writeSkeletonInfo(vertexCount: number, edgeCount: number, outputDirectory: string) {
+  //   const skeletonInfo = {
+  //     "@type": "neuroglancer_skeletons",
+  //     // "transform": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],  // Identity transform for now, modify as needed
+  //     "vertex_attributes": [
+  //       {
+  //         "id": "position",  // Default position attribute
+  //         "data_type": "float32",
+  //         "num_components": 3  // x, y, z
+  //       }
+  //     ],
+  //     "num_vertices": vertexCount,
+  //     "num_edges": edgeCount
+  //   };
+
+  //   // Path for the info.json file
+  //   const infoFilePath = path.join(outputDirectory, 'info.json');
+
+  //   // Write the JSON file
+  //   fs.writeFileSync(infoFilePath, JSON.stringify(skeletonInfo, null, 2));
+  //   console.log(`Skeleton info file written to ${infoFilePath}`);
+  // }
+
+  static writeSkeletonInfo(outputDirectory: string) {
     const skeletonInfo = {
       "@type": "neuroglancer_skeletons",
-      "transform": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],  // Identity transform for now, modify as needed
+      // "transform": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],  // Identity transform for now, modify as needed
       "vertex_attributes": [
         {
-          "id": "position",  // Default position attribute
+          "id": "orientation",
           "data_type": "float32",
           "num_components": 3  // x, y, z
         }
       ],
-      "num_vertices": vertexCount,
-      "num_edges": edgeCount
+      "segment_properties": "prop",
     };
 
     // Path for the info.json file

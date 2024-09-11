@@ -1,301 +1,33 @@
-Track 1 processed, number of points: 12
-Track 2 processed, number of points: 17
-Track 3 processed, number of points: 21
-Track 4 processed, number of points: 20
-Track 5 processed, number of points: 18
-Track 6 processed, number of points: 17
-Track 7 processed, number of points: 12
-Track 8 processed, number of points: 73
-Track 9 processed, number of points: 96
-Track 10 processed, number of points: 21
-Track 11 processed, number of points: 20
-Track 12 processed, number of points: 26
-Track 13 processed, number of points: 123
-Track 14 processed, number of points: 16
-Track 15 processed, number of points: 33
-Track 16 processed, number of points: 31
-Track 17 processed, number of points: 50
-Track 18 processed, number of points: 22
-Track 19 processed, number of points: 15
-Track 20 processed, number of points: 31
-Track 21 processed, number of points: 23
-Track 22 processed, number of points: 117
-Track 23 processed, number of points: 129
-Track 24 processed, number of points: 16
-Track 25 processed, number of points: 22
-Track 26 processed, number of points: 52
-Track 27 processed, number of points: 19
-Track 28 processed, number of points: 13
-Track 29 processed, number of points: 18
-Track 30 processed, number of points: 40
-Track 31 processed, number of points: 58
-Track 32 processed, number of points: 45
-Track 33 processed, number of points: 52
-Track 34 processed, number of points: 73
-Track 35 processed, number of points: 141
-Track 36 processed, number of points: 12
-Track 37 processed, number of points: 39
-Track 38 processed, number of points: 57
-Track 39 processed, number of points: 135
-Track 40 processed, number of points: 74
-Track 41 processed, number of points: 83
-Track 42 processed, number of points: 197
-Track 43 processed, number of points: 32
-Track 44 processed, number of points: 25
-Track 45 processed, number of points: 24
-Track 46 processed, number of points: 15
-Track 47 processed, number of points: 116
-Track 48 processed, number of points: 78
-Track 49 processed, number of points: 59
-Track 50 processed, number of points: 89
-Track 51 processed, number of points: 205
-Track 52 processed, number of points: 13
-Track 53 processed, number of points: 104
-Track 54 processed, number of points: 54
-Track 55 processed, number of points: 116
-Track 56 processed, number of points: 28
-Track 57 processed, number of points: 79
-Track 58 processed, number of points: 149
-Track 59 processed, number of points: 91
-Track 60 processed, number of points: 33
-Track 61 processed, number of points: 90
-Track 62 processed, number of points: 139
-Track 63 processed, number of points: 52
-Track 64 processed, number of points: 98
-Track 65 processed, number of points: 135
-Track 66 processed, number of points: 176
-Track 67 processed, number of points: 176
-Track 68 processed, number of points: 35
-Track 69 processed, number of points: 47
-Track 70 processed, number of points: 17
-Track 71 processed, number of points: 12
-Track 72 processed, number of points: 149
-Track 73 processed, number of points: 113
-Track 74 processed, number of points: 14
-Track 75 processed, number of points: 38
-Track 76 processed, number of points: 164
-Track 77 processed, number of points: 36
-Track 78 processed, number of points: 153
-Track 79 processed, number of points: 41
-Track 80 processed, number of points: 152
-Track 81 processed, number of points: 16
-Track 82 processed, number of points: 47
-Track 83 processed, number of points: 120
-Track 84 processed, number of points: 78
-Track 85 processed, number of points: 143
-Track 86 processed, number of points: 53
-Track 87 processed, number of points: 295
-Track 88 processed, number of points: 145
-Track 89 processed, number of points: 213
-Track 90 processed, number of points: 31
-Track 91 processed, number of points: 82
-Track 92 processed, number of points: 270
-Track 93 processed, number of points: 42
-Track 94 processed, number of points: 224
-Track 95 processed, number of points: 33
-Track 96 processed, number of points: 92
-Track 97 processed, number of points: 129
-Track 98 processed, number of points: 58
-Track 99 processed, number of points: 179
-Track 100 processed, number of points: 70
-Track 101 processed, number of points: 62
-Track 102 processed, number of points: 303
-Track 103 processed, number of points: 47
-Track 104 processed, number of points: 184
-Track 105 processed, number of points: 85
-Track 106 processed, number of points: 48
-Track 107 processed, number of points: 157
-Track 108 processed, number of points: 16
-Track 109 processed, number of points: 95
-Track 110 processed, number of points: 163
-Track 111 processed, number of points: 77
-Track 112 processed, number of points: 35
-Track 113 processed, number of points: 122
-Track 114 processed, number of points: 46
-Track 115 processed, number of points: 143
-Track 116 processed, number of points: 151
-Track 117 processed, number of points: 65
-Track 118 processed, number of points: 17
-Track 119 processed, number of points: 138
-Track 120 processed, number of points: 17
-Track 121 processed, number of points: 79
-Track 122 processed, number of points: 77
-Track 123 processed, number of points: 121
-Track 124 processed, number of points: 78
-Track 125 processed, number of points: 174
-Track 126 processed, number of points: 40
-Track 127 processed, number of points: 74
-Track 128 processed, number of points: 122
-Track 129 processed, number of points: 67
-Track 130 processed, number of points: 202
-Track 131 processed, number of points: 63
-Track 132 processed, number of points: 168
-Track 133 processed, number of points: 50
-Track 134 processed, number of points: 205
-Track 135 processed, number of points: 27
-Track 136 processed, number of points: 37
-Track 137 processed, number of points: 56
-Track 138 processed, number of points: 101
-Track 139 processed, number of points: 16
-Track 140 processed, number of points: 156
-Track 141 processed, number of points: 78
-Track 142 processed, number of points: 20
-Track 143 processed, number of points: 66
-Track 144 processed, number of points: 123
-Track 145 processed, number of points: 39
-Track 146 processed, number of points: 142
-Track 147 processed, number of points: 75
-Track 148 processed, number of points: 86
-Track 149 processed, number of points: 146
-Track 150 processed, number of points: 25
-Track 151 processed, number of points: 262
-Track 152 processed, number of points: 370
-Track 153 processed, number of points: 50
-Track 154 processed, number of points: 36
-Track 155 processed, number of points: 158
-Track 156 processed, number of points: 86
-Track 157 processed, number of points: 156
-Track 158 processed, number of points: 97
-Track 159 processed, number of points: 176
-Track 160 processed, number of points: 21
-Track 161 processed, number of points: 57
-Track 162 processed, number of points: 148
-Track 163 processed, number of points: 228
-Track 164 processed, number of points: 167
-Track 165 processed, number of points: 142
-Track 166 processed, number of points: 25
-Track 167 processed, number of points: 51
-Track 168 processed, number of points: 160
-Track 169 processed, number of points: 108
-Track 170 processed, number of points: 75
-Track 171 processed, number of points: 179
-Track 172 processed, number of points: 15
-Track 173 processed, number of points: 129
-Track 174 processed, number of points: 70
-Track 175 processed, number of points: 192
-Track 176 processed, number of points: 66
-Track 177 processed, number of points: 183
-Track 178 processed, number of points: 66
-Track 179 processed, number of points: 111
-Track 180 processed, number of points: 119
-Track 181 processed, number of points: 130
-Track 182 processed, number of points: 46
-Track 183 processed, number of points: 156
-Track 184 processed, number of points: 19
-Track 185 processed, number of points: 168
-Track 186 processed, number of points: 112
-Track 187 processed, number of points: 139
-Track 188 processed, number of points: 142
-Track 189 processed, number of points: 52
-Track 190 processed, number of points: 158
-Track 191 processed, number of points: 13
-Track 192 processed, number of points: 90
-Track 193 processed, number of points: 41
-Track 194 processed, number of points: 29
-Track 195 processed, number of points: 26
-Track 196 processed, number of points: 145
-Track 197 processed, number of points: 132
-Track 198 processed, number of points: 177
-Track 199 processed, number of points: 181
-Track 200 processed, number of points: 120
-Track 201 processed, number of points: 193
-Track 202 processed, number of points: 117
-Track 203 processed, number of points: 13
-Track 204 processed, number of points: 14
-Track 205 processed, number of points: 30
-Track 206 processed, number of points: 64
-Track 207 processed, number of points: 28
-Track 208 processed, number of points: 105
-Track 209 processed, number of points: 46
-Track 210 processed, number of points: 182
-Track 211 processed, number of points: 102
-Track 212 processed, number of points: 166
-Track 213 processed, number of points: 84
-Track 214 processed, number of points: 136
-Track 215 processed, number of points: 148
-Track 216 processed, number of points: 194
-Track 217 processed, number of points: 59
-Track 218 processed, number of points: 123
-Track 219 processed, number of points: 163
-Track 220 processed, number of points: 43
-Track 221 processed, number of points: 91
-Track 222 processed, number of points: 34
-Track 223 processed, number of points: 47
-Track 224 processed, number of points: 110
-Track 225 processed, number of points: 90
-Track 226 processed, number of points: 43
-Track 227 processed, number of points: 87
-Track 228 processed, number of points: 21
-Track 229 processed, number of points: 150
-Track 230 processed, number of points: 118
-Track 231 processed, number of points: 61
-Track 232 processed, number of points: 60
-Track 233 processed, number of points: 69
-Track 234 processed, number of points: 134
-Track 235 processed, number of points: 185
-Track 236 processed, number of points: 119
-Track 237 processed, number of points: 283
-Track 238 processed, number of points: 157
-Track 239 processed, number of points: 49
-Track 240 processed, number of points: 158
-Track 241 processed, number of points: 137
-Track 242 processed, number of points: 151
-Track 243 processed, number of points: 257
-Track 244 processed, number of points: 42
-Track 245 processed, number of points: 45
-Track 246 processed, number of points: 41
-Track 247 processed, number of points: 63
-Track 248 processed, number of points: 87
-Track 249 processed, number of points: 50
-Track 250 processed, number of points: 73
-Track 251 processed, number of points: 92
-Track 252 processed, number of points: 29
-Track 253 processed, number of points: 56
-Track 254 processed, number of points: 44
-Track 255 processed, number of points: 76
-Track 256 processed, number of points: 37
-Track 257 processed, number of points: 123
-Track 258 processed, number of points: 85
-Track 259 processed, number of points: 205
-Track 260 processed, number of points: 55
-Track 261 processed, number of points: 84
-Track 262 processed, number of points: 164
-Track 263 processed, number of points: 66
-Track 264 processed, number of points: 63
-Track 265 processed, number of points: 128
-Track 266 processed, number of points: 108
-Track 267 processed, number of points: 102
-Track 268 processed, number of points: 39
-Track 269 processed, number of points: 144
-Track 270 processed, number of points: 59
-Track 271 processed, number of points: 32
-Track 272 processed, number of points: 94
-Track 273 processed, number of points: 96
-Track 274 processed, number of points: 129
-Track 275 processed, number of points: 76
-Track 276 processed, number of points: 75
-Track 277 processed, number of points: 89
-Track 278 processed, number of points: 85
-Track 279 processed, number of points: 65
-Track 280 processed, number of points: 76
-Track 281 processed, number of points: 67
-Track 282 processed, number of points: 67
-Track 283 processed, number of points: 150
-Track 284 processed, number of points: 116
-Track 285 processed, number of points: 78
-Track 286 processed, number of points: 89
-Track 287 processed, number of points: 146
-Track 288 processed, number of points: 74
-Track 289 processed, number of points: 81
-Track 290 processed, number of points: 103
-Track 291 processed, number of points: 12
-Track 292 processed, number of points: 303
-Track 293 processed, number of points: 120
-Track 294 processed, number of points: 143
-Track 295 processed, number of points: 186
-Track 296 processed, number of points: 49
-Track 297 processed, number of points: 104
-Track 298 processed, number of points: 120
-Track 299 processed, number of points: 64
-Track 300 processed, number of points: 109
-Track 301 processed, number of points: 15
+
+Voxel: [118.1470947265625, 101.17465209960938, 97.55260467529297] -> RAS: [154.9403556692705, -281.14009708607773, -5.416411190597955]
+Voxel: [118.19449615478516, 101.57086181640625, 97.61060333251953] -> RAS: [154.90131921824832, -280.8138068922126, -5.370012264125307]
+Voxel: [118.2593765258789, 101.96127319335938, 97.69994354248047] -> RAS: [154.84788835079416, -280.49229179938993, -5.298540095091539]
+Voxel: [118.25704956054688, 102.36734008789062, 97.69322204589844] -> RAS: [154.84980467423884, -280.1578839337526, -5.303917292437291]
+Voxel: [118.20932006835938, 102.75921630859375, 97.77169799804688] -> RAS: [154.88911129545158, -279.83516249961394, -5.241136529783034]
+Voxel: [118.241943359375, 103.1446533203125, 97.88720703125] -> RAS: [154.86224506906, -279.5177439408435, -5.148729301843559]
+Voxel: [118.33378601074219, 103.5347900390625, 97.95992279052734] -> RAS: [154.78660998175837, -279.1964550370176, -5.090556693554845]
+Voxel: [118.44659423828125, 103.91522216796875, 98.05236053466797] -> RAS: [154.6937091343716, -278.8831581444101, -5.016606497140401]
+Voxel: [118.5162124633789, 104.29193115234375, 98.18292999267578] -> RAS: [154.63637650672354, -278.57292736931413, -4.912150929177642]
+Voxel: [118.58987426757812, 104.67098999023438, 98.30146026611328] -> RAS: [154.57571387440112, -278.2607614216904, -4.817326709014651]
+Voxel: [118.60472869873047, 105.06976318359375, 98.33061218261719] -> RAS: [154.56348081949363, -277.9323601305223, -4.794005175464008]
+Voxel: [118.62966918945312, 105.46820068359375, 98.32498168945312] -> RAS: [154.54294160198333, -277.6042352925724, -4.798509570062379]
+Voxel: [118.64289855957031, 105.8651123046875, 98.30239868164062] -> RAS: [154.53204683197328, -277.27736706016003, -4.816575976581589]
+Voxel: [118.55703735351562, 106.26126861572266, 98.27171325683594] -> RAS: [154.60275602556794, -276.9511208474887, -4.841124316791138]
+Voxel: [118.52793884277344, 106.65630340576172, 98.181396484375] -> RAS: [154.6267194931679, -276.62579823988744, -4.913377735836548]
+Voxel: [118.43821716308594, 107.03484344482422, 98.06607055664062] -> RAS: [154.70060789877243, -276.31405953814647, -5.00563847939884]
+Voxel: [118.1470947265625, 101.17465209960938, 97.55260467529297] -> RAS: [154.9403556692705, -281.14009708607773, -5.416411190597955]
+Voxel: [118.19449615478516, 101.57086181640625, 97.61060333251953] -> RAS: [154.90131921824832, -280.8138068922126, -5.370012264125307]
+Voxel: [118.2593765258789, 101.96127319335938, 97.69994354248047] -> RAS: [154.84788835079416, -280.49229179938993, -5.298540095091539]
+Voxel: [118.25704956054688, 102.36734008789062, 97.69322204589844] -> RAS: [154.84980467423884, -280.1578839337526, -5.303917292437291]
+Voxel: [118.20932006835938, 102.75921630859375, 97.77169799804688] -> RAS: [154.88911129545158, -279.83516249961394, -5.241136529783034]
+Voxel: [118.241943359375, 103.1446533203125, 97.88720703125] -> RAS: [154.86224506906, -279.5177439408435, -5.148729301843559]
+Voxel: [118.33378601074219, 103.5347900390625, 97.95992279052734] -> RAS: [154.78660998175837, -279.1964550370176, -5.090556693554845]
+Voxel: [118.44659423828125, 103.91522216796875, 98.05236053466797] -> RAS: [154.6937091343716, -278.8831581444101, -5.016606497140401]
+Voxel: [118.5162124633789, 104.29193115234375, 98.18292999267578] -> RAS: [154.63637650672354, -278.57292736931413, -4.912150929177642]
+Voxel: [118.58987426757812, 104.67098999023438, 98.30146026611328] -> RAS: [154.57571387440112, -278.2607614216904, -4.817326709014651]
+Voxel: [118.60472869873047, 105.06976318359375, 98.33061218261719] -> RAS: [154.56348081949363, -277.9323601305223, -4.794005175464008]
+Voxel: [118.62966918945312, 105.46820068359375, 98.32498168945312] -> RAS: [154.54294160198333, -277.6042352925724, -4.798509570062379]
+Voxel: [118.64289855957031, 105.8651123046875, 98.30239868164062] -> RAS: [154.53204683197328, -277.27736706016003, -4.816575976581589]
+Voxel: [118.55703735351562, 106.26126861572266, 98.27171325683594] -> RAS: [154.60275602556794, -276.9511208474887, -4.841124316791138]
+Voxel: [118.52793884277344, 106.65630340576172, 98.181396484375] -> RAS: [154.6267194931679, -276.62579823988744, -4.913377735836548]
+Voxel: [118.43821716308594, 107.03484344482422, 98.06607055664062] -> RAS: [154.70060789877243, -276.31405953814647, -5.00563847939884]

@@ -22,6 +22,8 @@ export interface TrkHeader {
 }
 
 export class TrkHeaderProcessor {
+
+    
     static readTrkHeader(buffer: Buffer): TrkHeader {
 
         let offset = 0;

@@ -29,7 +29,7 @@ async function main() {
   // Process full chunks of 7000 tracks
   for (let chunkIndex = 0; chunkIndex < numFullChunks; chunkIndex++) {
     const chunkSize = tracksPerChunk * 12 * 4; // 12 bytes per point (x, y, z), 4 bytes for the number of points in the track
-    console.log(`Processing chunk ${chunkIndex + 1} with ${tracksPerChunk} tracks`);
+    console.log(`\nProcessing chunk ${chunkIndex + 1} with ${tracksPerChunk} tracks`);
 
     // Call processTrackData and get the state back
     const state: ProcessState = await trackProcessor.processTrackData(
@@ -44,7 +44,7 @@ async function main() {
   // Process the remaining tracks (if any)
   if (remainingTracks > 0) {
     const chunkSize = remainingTracks * 12 * 4;
-    console.log(`Processing remaining chunk with ${remainingTracks} tracks`);
+    console.log(`\nProcessing remaining chunk with ${remainingTracks} tracks\n`);
 
     await trackProcessor.processTrackData(trkFileUrl, byteOffset, chunkSize, trackToProcess, trackNumber);
   }

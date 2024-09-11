@@ -92,11 +92,11 @@ export class TrackProcessor {
         offset += 4; // Move the offset after reading the number of points
 
         // Log track data
-        writeStream.write(`Track ${trackNumber} processed, number of points: ${n_points}\n`);
+        // writeStream.write(`Track ${trackNumber} processed, number of points: ${n_points}\n`);
 
         // Process track 108 if needed
         if (trackNumber === trackToProcess && !track108Processed) {
-          console.log(`Processing track ${trackToProcess} with ${n_points} points.`);
+          console.log(`\nProcessing track ${trackToProcess} with ${n_points} points.`);
 
           for (let i = 0; i < n_points; i++) {
             const x = buffer.readFloatLE(offset);
@@ -105,7 +105,12 @@ export class TrackProcessor {
             offset += 12;
 
             const voxelPoint: [number, number, number] = [x, y, z];
-            const rasPoint = VoxelToRASConverter.voxelToRAS(voxelPoint, this.globalHeader);
+            const rasPoint = VoxelToRASConverter.voxelToRAS(voxelPoint, this.globalHeader.vox_to_ras);
+
+            // Log the conversion result
+            console.log(`Voxel: [${x}, ${y}, ${z}] -> RAS: [${rasPoint[0]}, ${rasPoint[1]}, ${rasPoint[2]}]`);
+            writeStream.write(`\nVoxel: [${x}, ${y}, ${z}] -> RAS: [${rasPoint[0]}, ${rasPoint[1]}, ${rasPoint[2]}]`);
+
 
 
             // Add vertex data
@@ -127,7 +132,8 @@ export class TrackProcessor {
           SkeletonWriter.writeSkeleton(vertices, edges, binaryFilePath);
 
           // Write the skeleton metadata (always to "info.json")
-          SkeletonWriter.writeSkeletonInfo(vertices.length, edges.length, outputDirectory);
+          // SkeletonWriter.writeSkeletonInfo(vertices.length, edges.length, outputDirectory);
+          SkeletonWriter.writeSkeletonInfo(outputDirectory);
 
           console.log(`Track ${trackToProcess} skeleton and info files written.`);
           track108Processed = true; // Mark as processed
