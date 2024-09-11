@@ -1,20 +1,22 @@
 import { TrackProcessor, ProcessState } from './trackProcessor';
-import SkeletonWriter from './skeletonWriter'; 
+import SkeletonWriter from './skeletonWriter';
 import * as fs from 'fs';
 
 async function main() {
 
   const trkFileUrl = "https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67";
   const headerChunkSize = 1000;
-  const trackToProcess = 108; // Track number to process
+  // const trackToProcess = 108; // Track number to process
 
-  const trackProcessor = new TrackProcessor(); 
+  const trackProcessor = new TrackProcessor();
   await trackProcessor.streamAndProcessHeader(trkFileUrl, 0, headerChunkSize - 1);
 
   if (!trackProcessor.globalHeader) {
     console.error('Error: Failed to fetch or process the TRK header.');
     return;
   }
+
+
 
 
   // Get the number of tracks from the global header
@@ -26,32 +28,43 @@ async function main() {
   const remainingTracks = numTracks % tracksPerChunk;
 
   // Start processing tract data immediately after the header
-  let start = 1000; 
+  let start = 1000;
   let trackNumber = 1;
   let byteOffset = start;
 
-  // Process full chunks of 7000 tracks
-  for (let chunkIndex = 0; chunkIndex < numFullChunks; chunkIndex++) {
-    const chunkSize = tracksPerChunk * 12 * 4; // 12 bytes per point (x, y, z), 4 bytes for the number of points in the track
-    console.log(`\nProcessing chunk ${chunkIndex + 1} with ${tracksPerChunk} tracks`);
+  const outputFilePath = 'trackData.txt';  // Specify the path where you want to save the track data
 
-    // Call processTrackData and get the state back
-    const state: ProcessState = await trackProcessor.processTrackData(
-      trkFileUrl, byteOffset, chunkSize, trackToProcess, trackNumber
-    );
+// Process full chunks of 7000 tracks
+for (let chunkIndex = 0; chunkIndex < numFullChunks; chunkIndex++) {
+  
+  console.log(`\nProcessing chunk ${chunkIndex + 1} with ${tracksPerChunk} tracks`);
 
-    // Update byteOffset and trackNumber for the next chunk
-    byteOffset = state.byteOffset;
-    trackNumber = state.trackNumber;
-  }
+  const state: ProcessState = await trackProcessor.processTrackData(
+    trkFileUrl, trackNumber, byteOffset, outputFilePath  // Pass the output file path
+  );
 
-  // Process the remaining tracks (if any)
-  if (remainingTracks > 0) {
-    const chunkSize = remainingTracks * 12 * 4;
-    console.log(`\nProcessing remaining chunk with ${remainingTracks} tracks\n`);
+  // Update byteOffset and trackNumber for the next chunk
+  byteOffset = state.byteOffset;
+  trackNumber = state.trackNumber;
+}
 
-    await trackProcessor.processTrackData(trkFileUrl, byteOffset, chunkSize, trackToProcess, trackNumber);
-  }
+// Process the remaining tracks (if any)
+if (remainingTracks > 0) {
+  console.log(`\nProcessing remaining chunk with ${remainingTracks} tracks\n`);
+
+  await trackProcessor.processTrackData(trkFileUrl, trackNumber, byteOffset, outputFilePath);  // Pass the output file path
+}
+
+
+
+
+
+
+
+
+
+
+
 
   // === Integrating SkeletonWriter ===
   // After processing the track data, you can use the SkeletonWriter to write the skeleton and metadata
