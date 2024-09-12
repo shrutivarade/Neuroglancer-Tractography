@@ -36,127 +36,95 @@ export class TrackProcessor {
     }
   }
 
-  // Modify processTrackData to return the state (ProcessState) for the next chunk
   async processTrackData(
     url: string,
     byteOffset: number,
     chunkSize: number,
-    trackToProcess: number,
     trackNumber: number
-  ): Promise<ProcessState> {
+): Promise<ProcessState> {
     if (!this.globalHeader) {
-      console.error('Error: Global header is not initialized.');
-      return { byteOffset, trackNumber, offset: 0 };
+        console.error('Error: Global header is not initialized.');
+        return { byteOffset, trackNumber, offset: 0 };
     }
 
     const outputFilePath = path.join(__dirname, 'track_data.txt');
     const writeStream = fs.createWriteStream(outputFilePath, { flags: 'a' });
 
     let offset = 0;
-    let track108Processed = false;
+    let trackProcessedCount = 0; // Track how many tracks have been processed
+    const maxTracksToProcess = 300; // We want to process the first 100 tracks
+
+    const vertices: Vertex[] = [];
+    const edges: Edge[] = [];
+    let vertexIndex = 0;
 
     try {
-      const response = await axios.get(url, {
-        responseType: 'arraybuffer',
-        headers: {
-          'Range': `bytes=${byteOffset}-${byteOffset + chunkSize - 1}`,
-        },
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-      });
+        const response = await axios.get(url, {
+            responseType: 'arraybuffer',
+            headers: {
+                'Range': `bytes=${byteOffset}-${byteOffset + chunkSize - 1}`,
+            },
+        });
 
-      const buffer = Buffer.from(response.data);
-      if (buffer.length === 0) {
-        console.log('No more data to read.');
-        return { byteOffset, trackNumber, offset: 0 };
-      }
+        const buffer = Buffer.from(response.data);
+        const dataView = new DataView(buffer.buffer);
 
-      const vertices: Vertex[] = [];
-      const edges: Edge[] = [];
-      let vertexIndex = 0;
+        while (trackProcessedCount < maxTracksToProcess && offset < buffer.byteLength) {
+            // Read the number of points in the track (first 4 bytes)
+            const n_points = dataView.getInt32(offset, true);
+            offset += 4;
 
-      while (offset < buffer.length) {
-        // Read the number of points for the current track
-        const n_points = buffer.readInt32LE(offset);
-        const bytesForTrack = n_points * 12 + 4; // 4 bytes for the number of points, 12 bytes per point
+            // Process each point in the track (x, y, z - 12 bytes per point)
+            for (let i = 0; i < n_points; i++) {
+                const x = dataView.getFloat32(offset, true);
+                const y = dataView.getFloat32(offset + 4, true);
+                const z = dataView.getFloat32(offset + 8, true);
+                offset += 12;
 
-        // Check if adding this track will exceed the chunk size
-        if (offset + bytesForTrack > chunkSize) {
-          // console.log(`Track ${trackNumber} exceeds chunk size, moving to next chunk.`);
+                const voxelPoint: [number, number, number] = [x, y, z];
+                const rasPoint = VoxelToRASConverter.voxelToRAS(voxelPoint, this.globalHeader.vox_to_ras);
 
-          // Update byteOffset for the next chunk and break
-          byteOffset += buffer.byteLength;
-          return { byteOffset, trackNumber, offset: 0 }; // Return the state and break
-        }
+                // Log the conversion result
+                // console.log(`Voxel: [${x}, ${y}, ${z}] -> RAS: [${rasPoint[0]}, ${rasPoint[1]}, ${rasPoint[2]}]`);
+                writeStream.write(`\nVoxel: [${x}, ${y}, ${z}] -> RAS: [${rasPoint[0]}, ${rasPoint[1]}, ${rasPoint[2]}]`);
 
-        offset += 4; // Move the offset after reading the number of points
+                // Add vertex data
+                vertices.push({ x: rasPoint[0], y: rasPoint[1], z: rasPoint[2] });
 
-        // Log track data
-        // writeStream.write(`Track ${trackNumber} processed, number of points: ${n_points}\n`);
-
-        // Process track 108 if needed
-        if (trackNumber === trackToProcess && !track108Processed) {
-          console.log(`\nProcessing track ${trackToProcess} with ${n_points} points.`);
-
-          for (let i = 0; i < n_points; i++) {
-            const x = buffer.readFloatLE(offset);
-            const y = buffer.readFloatLE(offset + 4);
-            const z = buffer.readFloatLE(offset + 8);
-            offset += 12;
-
-            const voxelPoint: [number, number, number] = [x, y, z];
-            const rasPoint = VoxelToRASConverter.voxelToRAS(voxelPoint, this.globalHeader.vox_to_ras);
-
-            // Log the conversion result
-            console.log(`Voxel: [${x}, ${y}, ${z}] -> RAS: [${rasPoint[0]}, ${rasPoint[1]}, ${rasPoint[2]}]`);
-            writeStream.write(`\nVoxel: [${x}, ${y}, ${z}] -> RAS: [${rasPoint[0]}, ${rasPoint[1]}, ${rasPoint[2]}]`);
-
-
-
-            // Add vertex data
-            vertices.push({ x: rasPoint[0], y: rasPoint[1], z: rasPoint[2] });
-
-            // Add edge data
-            if (i > 0) {
-              edges.push({ vertex1: vertexIndex - 1, vertex2: vertexIndex });
+                // Add edge data
+                if (i > 0) {
+                    edges.push({ vertex1: vertexIndex - 1, vertex2: vertexIndex });
+                }
+                vertexIndex++;
             }
-            vertexIndex++;
-          }
 
-          const outputDirectory =  path.resolve(__dirname, '..', 'src'); // You can change this to any directory
+            trackProcessedCount++; // Increment the number of processed tracks
+            trackNumber++;
 
-          // Generate paths for skeleton files
-          const { binaryFilePath, propInfoFilePath, skeletonInfoFilePath } = SkeletonWriter.generateSkeletonFilePaths(outputDirectory);
+            // Write the skeleton data after processing 100 tracks
+            if (trackProcessedCount >= maxTracksToProcess) {
+                const outputDirectory = path.resolve(__dirname, '..', 'src');
+                const { binaryFilePath, propInfoFilePath, skeletonInfoFilePath } = SkeletonWriter.generateSkeletonFilePaths(outputDirectory);
 
-          // Write the skeleton binary data
-          SkeletonWriter.writeSkeleton(vertices, edges, binaryFilePath);
+                SkeletonWriter.writeSkeleton(vertices, edges, binaryFilePath);
+                SkeletonWriter.writePropInfo(propInfoFilePath);
+                SkeletonWriter.writeSkeletonInfo(skeletonInfoFilePath);
 
-          // Write the propInfo to the propInfoPath
-          SkeletonWriter.writePropInfo(propInfoFilePath);
-          // Write the skeleton metadata to the infoFilePath
-          SkeletonWriter.writeSkeletonInfo(skeletonInfoFilePath);
-
-          
-
-          console.log(`Track ${trackToProcess} skeleton and info files written.`);
-
-          track108Processed = true; // Mark as processed
-
-        } else {
-          offset += n_points * 12; // Skip the remaining track data
+                console.log(`Processed ${maxTracksToProcess} tracks and wrote skeleton and info files.`);
+            }
         }
 
-        trackNumber++;
-      }
+        writeStream.end();
+        byteOffset += buffer.byteLength; // Move to the next chunk
 
-      writeStream.end();
-      byteOffset += buffer.byteLength; // Move to the next chunk
-
-      // Return the updated state to continue processing in the next chunk
-      return { byteOffset, trackNumber, offset };
+        // Return the updated state to continue processing in the next chunk
+        return { byteOffset, trackNumber, offset };
     } catch (error) {
-      console.error('Error fetching or processing track data:', error);
-      return { byteOffset, trackNumber, offset };
+        console.error('Error fetching or processing track data:', error);
+        return { byteOffset, trackNumber, offset };
     }
-  }
+}
+
+
+  
 }
