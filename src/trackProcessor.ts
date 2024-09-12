@@ -123,20 +123,25 @@ export class TrackProcessor {
             vertexIndex++;
           }
 
-          const outputDirectory = __dirname; // You can change this to any directory
+          const outputDirectory =  path.resolve(__dirname, '..', 'src'); // You can change this to any directory
 
           // Generate paths for skeleton files
-          const { binaryFilePath } = SkeletonWriter.generateSkeletonFilePaths(trackToProcess, outputDirectory);
+          const { binaryFilePath, propInfoFilePath, skeletonInfoFilePath } = SkeletonWriter.generateSkeletonFilePaths(outputDirectory);
 
           // Write the skeleton binary data
           SkeletonWriter.writeSkeleton(vertices, edges, binaryFilePath);
 
-          // Write the skeleton metadata (always to "info.json")
-          // SkeletonWriter.writeSkeletonInfo(vertices.length, edges.length, outputDirectory);
-          SkeletonWriter.writeSkeletonInfo(outputDirectory);
+          // Write the propInfo to the propInfoPath
+          SkeletonWriter.writePropInfo(propInfoFilePath);
+          // Write the skeleton metadata to the infoFilePath
+          SkeletonWriter.writeSkeletonInfo(skeletonInfoFilePath);
+
+          
 
           console.log(`Track ${trackToProcess} skeleton and info files written.`);
+
           track108Processed = true; // Mark as processed
+
         } else {
           offset += n_points * 12; // Skip the remaining track data
         }

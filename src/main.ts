@@ -2,10 +2,14 @@ import { TrackProcessor, ProcessState } from './trackProcessor';
 
 async function main() {
   const trkFileUrl = "https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67";
+  
+  
+  
+  // *****************************Header****************************
   const headerChunkSize = 1000;
   const trackToProcess = 108; // Track number to process
 
-  const trackProcessor = new TrackProcessor(); // Global header will be set after header processing
+  const trackProcessor = new TrackProcessor(); 
   await trackProcessor.streamAndProcessHeader(trkFileUrl, 0, headerChunkSize - 1);
 
   if (!trackProcessor.globalHeader) {
@@ -14,6 +18,7 @@ async function main() {
   }
 
 
+  // *****************************tracks****************************
   // Get the number of tracks from the global header
   const numTracks = trackProcessor.globalHeader.n_count;
   const tracksPerChunk = 7000;
@@ -22,9 +27,8 @@ async function main() {
   const numFullChunks = Math.floor(numTracks / tracksPerChunk);
   const remainingTracks = numTracks % tracksPerChunk;
 
-  let start = 1000; // Start immediately after the header
   let trackNumber = 1;
-  let byteOffset = start;
+  let byteOffset = 1000;
 
   // Process full chunks of 7000 tracks
   for (let chunkIndex = 0; chunkIndex < numFullChunks; chunkIndex++) {
