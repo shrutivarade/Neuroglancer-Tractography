@@ -201,11 +201,6 @@ async function streamAndProcessHeader(url: string, start: number, end: number) {
     }
 }
 
-
-
-
-
-
 // Function to convert voxel coordinates to RAS using the vox_to_ras matrix
 function voxel_to_RAS(point: [number, number, number], matrix: number[][]): [number, number, number] {
     const [x_voxel, y_voxel, z_voxel] = point;
@@ -241,9 +236,9 @@ function readTrackDataAndWrite(buffer: Buffer, offset: number, writeStream: fs.W
             return;
         }
 
-        // Process track 119 by converting voxel points to RAS
-        if (trackNumber === 119) {
-            writeStream.write(`\n--- Voxel to RAS Conversion for Track 119 ---\n`);
+        // Process track 108 by converting voxel points to RAS
+        if (trackNumber === 108) {
+            writeStream.write(`\n--- Voxel to RAS Conversion for Track 108 ---\n`);
             for (let i = 0; i < n_points; i++) {
                 // Read x, y, z coordinates (each float is 4 bytes)
                 const x = buffer.readFloatLE(offset);
@@ -256,6 +251,7 @@ function readTrackDataAndWrite(buffer: Buffer, offset: number, writeStream: fs.W
 
                 // Log the conversion result
                 console.log(`Voxel: [${x}, ${y}, ${z}] -> RAS: [${rasPoint[0]}, ${rasPoint[1]}, ${rasPoint[2]}]`);
+                writeStream.write(`\nVoxel: [${x}, ${y}, ${z}] -> RAS: [${rasPoint[0]}, ${rasPoint[1]}, ${rasPoint[2]}]`);
 
                 // Move to the next point (each point is 12 bytes: 3 floats of 4 bytes each)
                 offset += 12;

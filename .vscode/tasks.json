@@ -1,13 +1,29 @@
-{
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "label": "tsc: build - tsconfig.json",
-        "type": "typescript",
-        "tsconfig": "tsconfig.json",
-        "group": "build",
-        "problemMatcher": ["$tsc"]
-      }
-    ]
-  }
+// {
+//     "version": "2.0.0",
+//     "tasks": [
+//       {
+//         "label": "tsc: build - tsconfig.json",
+//         "type": "typescript",
+//         "tsconfig": "tsconfig.json",
+//         "group": "build",
+//         "problemMatcher": ["$tsc"]
+//       }
+//     ]
+//   }
   
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "tsc: build - tsconfig.json",
+      "type": "shell",
+      "command": "tsc",
+      "args": ["-p", "tsconfig.json"],
+      "problemMatcher": ["$tsc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}

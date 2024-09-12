@@ -1,12 +1,15 @@
 {
   "devDependencies": {
-    "@types/node": "^22.5.0"
+    "@types/mathjs": "^9.4.1",
+    "@types/node": "^22.5.0",
+    "ts-node": "^10.9.2"
   },
   "dependencies": {
-    "axios": "^1.7.5"
+    "axios": "^1.7.5",
+    "mathjs": "^13.1.1"
   },
   "scripts": {
-  "build": "tsc",
-  "start": "node dist/trk-reader.js"
+    "build": "tsc",
+    "start": "node dist/main.js"
   }
 }
