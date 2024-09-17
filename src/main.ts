@@ -1,57 +1,28 @@
-import { TrackProcessor, ProcessState } from './trackProcessor';
+import { TrackProcessor } from './trackProcessor';
 
 async function main() {
-  const trkFileUrl = 'https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67';
   
+  const trkFileUrl = 'https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67';
 
-  // *****************************Header****************************
-  const headerChunkSize = 1000;
-  const trackProcessor = new TrackProcessor(); 
-  await trackProcessor.streamAndProcessHeader(trkFileUrl, 0, headerChunkSize - 1);
+  
+  const trackProcessor = new TrackProcessor();
 
+
+  await trackProcessor.streamAndProcessHeader(trkFileUrl, 0, 999); // Only header
   if (!trackProcessor.globalHeader) {
     console.error('Error: Failed to fetch or process the TRK header.');
     return;
   }
 
-  // *****************************tracks****************************
-  // Get the number of tracks from the global header
-  const numTracks = trackProcessor.globalHeader.n_count;
-  const tracksPerChunk = 7000;
+  
 
-  // Calculate the number of chunks
-  const numFullChunks = Math.floor(numTracks / tracksPerChunk);
-  const remainingTracks = numTracks % tracksPerChunk;
+  const totalTracks = trackProcessor.globalHeader.n_count;
+  const randomTrackNumbers = trackProcessor.getRandomTrackIndices(totalTracks, 100);
 
-  let trackNumber = 1; // Start processing from the first track
-  let byteOffset = 1000; // Offset to start reading track data
+  /* Process all the tracks from starting from 1 and generate precomuted file for all 
+   the tracks present in the randomTrackNumbers array. */
+  await trackProcessor.processTrackData(trkFileUrl, randomTrackNumbers, 1);
 
-  // Process full chunks of 7000 tracks
-  for (let chunkIndex = 0; chunkIndex < numFullChunks; chunkIndex++) {
-    const chunkSize = tracksPerChunk * 12 * 4; // 12 bytes per point (x, y, z), 4 bytes for the number of points in the track
-    console.log(`\nProcessing chunk ${chunkIndex + 1} with ${tracksPerChunk} tracks`);
-
-    // Call processTrackData to process the first 100 tracks
-    const state: ProcessState = await trackProcessor.processTrackData(
-      trkFileUrl, byteOffset, chunkSize, trackNumber
-    );
-
-    // Update byteOffset and trackNumber for the next chunk
-    byteOffset = state.byteOffset;
-    trackNumber = state.trackNumber;
-
-    if (trackNumber > 100) {
-      break; // Stop after processing the first 100 tracks
-    }
-  }
-
-  // Process the remaining tracks (if necessary, though not required in this case)
-  if (remainingTracks > 0 && trackNumber <= 100) {
-    const chunkSize = remainingTracks * 12 * 4;
-    console.log(`\nProcessing remaining chunk with ${remainingTracks} tracks\n`);
-
-    await trackProcessor.processTrackData(trkFileUrl, byteOffset, chunkSize, trackNumber);
-  }
 }
 
 main().catch(console.error);

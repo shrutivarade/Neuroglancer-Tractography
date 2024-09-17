@@ -1,4 +1,11 @@
 {
   "@type": "neuroglancer_skeletons",
+  "vertex_attributes": [
+    {
+      "id": "orientation",
+      "data_type": "float32",
+      "num_components": 3
+    }
+  ],
   "segment_properties": "prop"
 }
