@@ -29,7 +29,6 @@ export class TrackProcessor {
                 },
             });
             const buffer = Buffer.from(response.data);
-            // Read the header using TrkHeaderProcessor and store it in the globalHeader
             this.globalHeader = TrkHeaderProcessor.readTrkHeader(buffer);
             TrkHeaderProcessor.printTrkHeader(this.globalHeader);
         } catch (error) {
@@ -72,7 +71,7 @@ export class TrackProcessor {
         return orient;
     }
 
-    async processTrackData(url: string, randomTrackNumbers: number[], trackNumber: number): Promise<ProcessState> {
+    async processTrackData( randomTrackNumbers: number[], trackNumber: number): Promise<ProcessState> {
         if (!this.globalHeader) {
             console.error('Error: Global header is not initialized.');
             return { byteOffset: 0, trackNumber, offset: 0 };
@@ -92,15 +91,22 @@ export class TrackProcessor {
         // let end = 1116228;
 
         try {
-            const response = await axios.get(url, {
-                responseType: 'arraybuffer',
-                // headers: {
-                //     'Range': `bytes=${start}-${end}`,
-                // },
-            });
+            // const response = await axios.get(url, {
+            //     responseType: 'arraybuffer',
+            //     // headers: {
+            //     //     'Range': `bytes=${start}-${end}`,
+            //     // },
+            // });
 
-            const buffer = Buffer.from(response.data);
-            const dataView = new DataView(buffer.buffer);
+            // const buffer = Buffer.from(response.data);
+            // const dataView = new DataView(buffer.buffer);
+            // const dataView = this.loadFileBuffer('/Users/shrutiv/MyDocuments/GitHub/d4ac43bd-6896-4adf-a911-82edbea21f67.trk');
+
+            const filePath = '/Users/shrutiv/MyDocuments/GitHub/d4ac43bd-6896-4adf-a911-82edbea21f67.trk'; 
+            const { dataView, buffer } = await this.loadFileBuffer(filePath);
+            console.log('Buffer length:', buffer.length);
+            console.log('DataView length:', dataView.byteLength);
+
             let offset = 1000;
 
             while (trackProcessedCount < maxTracksToProcess && offset < buffer.byteLength) {
@@ -108,7 +114,6 @@ export class TrackProcessor {
                 const n_points = dataView.getInt32(offset, true); // true indicates little-endian byte order.
                 offset += 4;
 
-                // Log track data
                 writeStream.write(`Track ${trackNumber} processed, number of points: ${n_points}\n`);
 
                 // Only process the track if it is in the random track numbers
@@ -123,9 +128,8 @@ export class TrackProcessor {
                         points.push([x, y, z]);
 
                         const voxelPoint: [number, number, number] = [x, y, z];
-                        const affine = 
-                        VoxelToRASConverter.getAffineToRasmm(this.globalHeader);
-                        // const affine = this.globalHeader.vox_to_ras;
+                        const affine =
+                            VoxelToRASConverter.getAffineToRasmm(this.globalHeader);
                         const rasPoint = VoxelToRASConverter.applyAffineMatrix(voxelPoint, affine);
 
                         // Add vertex data
@@ -181,6 +185,23 @@ export class TrackProcessor {
             [trackIndices[i], trackIndices[j]] = [trackIndices[j], trackIndices[i]]; // Shuffle array
         }
         return trackIndices.slice(0, numTracks); // Return the first `numTracks` tracks
+    }
+
+    loadFileBuffer(filePath: string) {
+        try {
+            
+            const absolutePath = path.resolve(filePath);
+            const buffer = fs.readFileSync(absolutePath);
+            const dataView = new DataView(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength));
+            console.log('\nData loaded from local file successfully.');
+            return {
+                dataView,
+                buffer
+            };
+        } catch (error) {
+            console.error('Failed to load file:', error);
+            throw error;
+        }
     }
 
 }

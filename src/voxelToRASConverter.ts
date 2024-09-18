@@ -40,9 +40,6 @@ export class VoxelToRASConverter {
         const offset = math.identity(4) as math.Matrix;
         for (let i = 0; i < 3; i++) {
             offset.set([i, 3], -0.5);
-            // offset.set([0, 3], -100);
-            // offset.set([1, 3], -110);
-            // offset.set([2, 3], -75);
         }
         affine = math.multiply(offset, affine) as math.Matrix;
         // console.log("Affine:", affine);
@@ -87,7 +84,6 @@ export class VoxelToRASConverter {
         const ornt = VoxelToRASConverter.io_orientation(aff);
         return VoxelToRASConverter.ornt2axcodes(ornt, labels);
     }
-
     // Function to compute orientation from affine matrix
     static io_orientation(aff: number[][]): number[][] {
         const n = aff.length - 1;
@@ -122,7 +118,6 @@ export class VoxelToRASConverter {
 
         return orientation;
     }
-
     // Function to convert orientation to axis direction labels
     static ornt2axcodes(ornt: number[][], labels: [string, string][] = [['L', 'R'], ['P', 'A'], ['I', 'S']]): string[] {
         return ornt.map(([axis, direction]) => {
