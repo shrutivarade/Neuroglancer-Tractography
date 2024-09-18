@@ -15,6 +15,8 @@ export interface Edge {
 export class SkeletonWriter {
 
   static writeSkeleton(vertices: Vertex[], edges: Edge[], orientations: number[][], outputFilePath: string) {
+    fs.mkdirSync(path.dirname(outputFilePath), { recursive: true });
+
     const vertexCount = vertices.length;
     const edgeCount = edges.length;
 
@@ -60,6 +62,8 @@ export class SkeletonWriter {
 
   
   static writeSkeletonInfo(infoFilePath: string) {
+    fs.mkdirSync(path.dirname(infoFilePath), { recursive: true });
+
     const skeletonInfo = {
       "@type": "neuroglancer_skeletons",
       "vertex_attributes": [
@@ -72,6 +76,8 @@ export class SkeletonWriter {
       "segment_properties": "prop",
     };
 
+    fs.mkdirSync(path.dirname(infoFilePath), { recursive: true });
+
     // Write the skeleton info to the specified path
     fs.writeFileSync(infoFilePath, JSON.stringify(skeletonInfo, null, 2));
     console.log(`Skeleton info file written to ${infoFilePath}`);
@@ -79,6 +85,8 @@ export class SkeletonWriter {
 
   
   static writePropInfo(propFilePath: string) {
+    fs.mkdirSync(path.dirname(propFilePath), { recursive: true });
+
     const propInfo = {
       "@type": "neuroglancer_segment_properties",
       "inline": {
@@ -94,9 +102,16 @@ export class SkeletonWriter {
 
   
   static generateSkeletonFilePaths(outputDirectory: string) {
-    const binaryFilePath = path.join(outputDirectory, 'tract', '1'); // Binary file path
-    const propInfoFilePath = path.join(outputDirectory, 'tract', 'prop', 'info'); // JSON file path
-    const skeletonInfoFilePath = path.join(outputDirectory, 'tract', 'info'); // JSON file path
+  // Get the current date and time
+    const now = new Date();
+
+    // Format the timestamp as YYYYMMDD_HHMMSS
+    const timestamp = now.toISOString().replace(/[-:]/g, '').replace('T', '_').slice(0, 15);
+
+    // Build the file paths with the formatted timestamp
+    const binaryFilePath = path.join(outputDirectory, 'tract', timestamp, '1'); // Binary file path
+    const propInfoFilePath = path.join(outputDirectory, 'tract', timestamp, 'prop', 'info'); // JSON file path
+    const skeletonInfoFilePath = path.join(outputDirectory, 'tract', timestamp, 'info'); // JSON file path
 
     return {
       binaryFilePath,
