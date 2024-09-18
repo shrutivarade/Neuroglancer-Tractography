@@ -102,7 +102,7 @@ export class TrackProcessor {
             // const dataView = new DataView(buffer.buffer);
             // const dataView = this.loadFileBuffer('/Users/shrutiv/MyDocuments/GitHub/d4ac43bd-6896-4adf-a911-82edbea21f67.trk');
 
-            const filePath = '/Users/shrutiv/MyDocuments/GitHub/d4ac43bd-6896-4adf-a911-82edbea21f67.trk'; 
+            const filePath = 'https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67';
             const { dataView, buffer } = await this.loadFileBuffer(filePath);
             console.log('Buffer length:', buffer.length);
             console.log('DataView length:', dataView.byteLength);
@@ -188,20 +188,38 @@ export class TrackProcessor {
     }
 
     loadFileBuffer(filePath: string) {
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+        // Handle URL loading with axios
+        return axios.get(filePath, { responseType: 'arraybuffer' })
+            .then(response => {
+                const buffer = Buffer.from(response.data);
+                const dataView = new DataView(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength));
+                console.log('Data loaded from URL successfully.');
+                return {
+                    dataView,
+                    buffer
+                };
+            })
+            .catch(error => {
+                console.error('Failed to load file from URL:', error);
+                throw error;
+            });
+    } else {
+        // Handle local file loading with fs
         try {
-            
             const absolutePath = path.resolve(filePath);
             const buffer = fs.readFileSync(absolutePath);
             const dataView = new DataView(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength));
-            console.log('\nData loaded from local file successfully.');
+            console.log('Data loaded from local file successfully.');
             return {
                 dataView,
                 buffer
             };
         } catch (error) {
-            console.error('Failed to load file:', error);
+            console.error('Failed to load local file:', error);
             throw error;
         }
     }
+}
 
 }
