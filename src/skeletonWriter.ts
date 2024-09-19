@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+
 export interface Vertex {
   x: number;
   y: number;
@@ -15,6 +17,8 @@ export interface Edge {
 export class SkeletonWriter {
 
   static writeSkeleton(vertices: Vertex[], edges: Edge[], orientations: number[][], outputFilePath: string) {
+    fs.mkdirSync(path.dirname(outputFilePath), { recursive: true });
+
     const vertexCount = vertices.length;
     const edgeCount = edges.length;
 
@@ -60,6 +64,8 @@ export class SkeletonWriter {
 
   
   static writeSkeletonInfo(infoFilePath: string) {
+    fs.mkdirSync(path.dirname(infoFilePath), { recursive: true });
+
     const skeletonInfo = {
       "@type": "neuroglancer_skeletons",
       "vertex_attributes": [
@@ -72,6 +78,8 @@ export class SkeletonWriter {
       "segment_properties": "prop",
     };
 
+    fs.mkdirSync(path.dirname(infoFilePath), { recursive: true });
+
     // Write the skeleton info to the specified path
     fs.writeFileSync(infoFilePath, JSON.stringify(skeletonInfo, null, 2));
     console.log(`Skeleton info file written to ${infoFilePath}`);
@@ -79,6 +87,8 @@ export class SkeletonWriter {
 
   
   static writePropInfo(propFilePath: string) {
+    fs.mkdirSync(path.dirname(propFilePath), { recursive: true });
+
     const propInfo = {
       "@type": "neuroglancer_segment_properties",
       "inline": {
@@ -93,16 +103,96 @@ export class SkeletonWriter {
   }
 
   
-  static generateSkeletonFilePaths(outputDirectory: string) {
-    const binaryFilePath = path.join(outputDirectory, 'tract', '1'); // Binary file path
-    const propInfoFilePath = path.join(outputDirectory, 'tract', 'prop', 'info'); // JSON file path
-    const skeletonInfoFilePath = path.join(outputDirectory, 'tract', 'info'); // JSON file path
+  static generateSkeletonFilePaths(outputDirectory: string, timestamp: string) {
+
+    // Build the file paths with the formatted timestamp
+    const binaryFilePath = path.join(outputDirectory, 'tract', timestamp, '1'); // Binary file path
+    const propInfoFilePath = path.join(outputDirectory, 'tract', timestamp, 'prop', 'info'); // JSON file path
+    const skeletonInfoFilePath = path.join(outputDirectory, 'tract', timestamp, 'info'); // JSON file path
 
     return {
       binaryFilePath,
       propInfoFilePath,
       skeletonInfoFilePath
     };
+  }
+
+  static async uploadSkeletonFilePathsToS3(outputDirectory: string, timestamp: string) {
+  // Initialize the S3 client
+    const s3Client = new S3Client({
+      region: process.env.AWS_REGION || 'us-east-2',
+    });
+
+    // Read the bucket name from environment variables
+    const bucketName = process.env.BUCKET_NAME || 'linc-brain-mit-prod-us-east-2';
+
+    // Check for required environment variables
+    if (!process.env.AWS_REGION || !process.env.BUCKET_NAME) {
+      console.error('AWS_REGION and BUCKET_NAME must be set in environment variables.');
+      return;
+    }
+
+    // Define the local directory to upload
+    const localDir = path.join(outputDirectory, 'tract', timestamp);
+
+    // Include the 'neuroglancer_trk/' prefix in the S3 destination path
+    const s3DestinationPath = path.join('neuroglancer_trk', 'tract', timestamp).replace(/\\/g, '/');
+
+    // Recursively upload all files in the local directory to S3
+    await SkeletonWriter.uploadDirectoryToS3(s3Client, bucketName, localDir, s3DestinationPath);
+
+    console.log('Uploaded generated files to S3.');
+  }
+
+  static async uploadDirectoryToS3(
+    s3Client: S3Client,
+    bucketName: string,
+    localDirectory: string,
+    s3DestinationPath: string
+  ) {
+    const files = SkeletonWriter.getAllFilesInDirectory(localDirectory);
+
+    for (const filePath of files) {
+      // Compute the relative path from the local directory
+      const relativeFilePath = path.relative(localDirectory, filePath);
+
+      // Construct the S3 key by joining the destination path and relative file path
+      const s3Key = path.join(s3DestinationPath, relativeFilePath).replace(/\\/g, '/');
+
+      try {
+        const fileContent = fs.readFileSync(filePath);
+
+        const params = {
+          Bucket: bucketName,
+          Key: s3Key,
+          Body: fileContent,
+        };
+
+        const command = new PutObjectCommand(params);
+        await s3Client.send(command);
+        console.log(`File uploaded successfully to s3://${bucketName}/${s3Key}`);
+      } catch (error) {
+        console.error(`Error uploading file ${filePath} to S3:`, error);
+      }
+    }
+  }
+
+  static getAllFilesInDirectory(dir: string): string[] {
+    let results: string[] = [];
+
+    const list = fs.readdirSync(dir);
+    list.forEach((file) => {
+      const filePath = path.join(dir, file);
+      const stat = fs.statSync(filePath);
+      if (stat && stat.isDirectory()) {
+        // Recursively walk subdirectories
+        results = results.concat(SkeletonWriter.getAllFilesInDirectory(filePath));
+      } else {
+        results.push(filePath);
+      }
+    });
+
+    return results;
   }
 }
 
