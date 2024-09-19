@@ -26,10 +26,11 @@ async function main() {
    the tracks present in the randomTrackNumbers array. */
 
   // for local usage
-  // const trkFilePath = '/Users/shrutiv/MyDocuments/GitHub/Neuroglancer-Tractography/d4ac43bd-6896-4adf-a911-82edbea21f67.trk';
+  const trkFilePath = '/Users/shrutiv/MyDocuments/GitHub/d4ac43bd-6896-4adf-a911-82edbea21f67.trk';
 
   // await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFileUrl);
-  const { timestamp } = await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFileUrl);
+  // const { timestamp } = await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFileUrl);
+  const { timestamp } = await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFilePath);
 
   // Now, get the output directory
   const outputDirectory = path.resolve(__dirname, '..', 'src');
