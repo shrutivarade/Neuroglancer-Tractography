@@ -156,7 +156,7 @@ export class SkeletonWriter {
       // Compute the relative path from the local directory
       const relativeFilePath = path.relative(localDirectory, filePath);
 
-      // Construct the S3 key by joining the destination path and relative file path
+      // Construct the S3 key by joining the destination path and relative file path (Hashmap)
       const s3Key = path.join(s3DestinationPath, relativeFilePath).replace(/\\/g, '/');
 
       try {

@@ -72,6 +72,7 @@ export class TrackProcessor {
     }
 
     async processTrackData( randomTrackNumbers: number[], trackNumber: number, filePath: string): Promise<{ processState: ProcessState; timestamp: string }> {
+        
         // Get the current date and time
         const now = new Date();
 
@@ -94,20 +95,7 @@ export class TrackProcessor {
         let trackProcessedCount = 0;
         let vertexIndex = 0;
 
-        // let start = 1000;
-        // let end = 1116228;
-
         try {
-            // const response = await axios.get(url, {
-            //     responseType: 'arraybuffer',
-            //     // headers: {
-            //     //     'Range': `bytes=${start}-${end}`,
-            //     // },
-            // });
-
-            // const buffer = Buffer.from(response.data);
-            // const dataView = new DataView(buffer.buffer);
-            // const dataView = this.loadFileBuffer('/Users/shrutiv/MyDocuments/GitHub/d4ac43bd-6896-4adf-a911-82edbea21f67.trk');
 
             const { dataView, buffer } = await this.loadFileBuffer(filePath);
             console.log('Buffer length:', buffer.length);
@@ -215,7 +203,7 @@ export class TrackProcessor {
                     throw error;
                 });
         } else {
-        // Handle local file loading with fs
+            // Handle local file loading with fs
             try {
                 const absolutePath = path.resolve(filePath);
                 const buffer = fs.readFileSync(absolutePath);

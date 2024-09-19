@@ -18,16 +18,18 @@ async function main() {
   }
 
 
-  // const totalTracks = trackProcessor.globalHeader.n_count;
-  // const randomTrackNumbers = trackProcessor.getRandomTrackIndices(totalTracks, 200);
-  const randomTrackNumbers = [1];
+  const totalTracks = trackProcessor.globalHeader.n_count;
+  const randomTrackNumbers = trackProcessor.getRandomTrackIndices(totalTracks, 200);
+  // const randomTrackNumbers = [1];
 
   /* Process all the tracks from starting from 1 and generate precomuted file for all
    the tracks present in the randomTrackNumbers array. */
-  const filePath = 'https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67';
-  // await trackProcessor.processTrackData(randomTrackNumbers, 1, filePath);
 
-  const { timestamp } = await trackProcessor.processTrackData(randomTrackNumbers, 1, filePath);
+  // for local usage
+  // const trkFilePath = '/Users/shrutiv/MyDocuments/GitHub/Neuroglancer-Tractography/d4ac43bd-6896-4adf-a911-82edbea21f67.trk';
+
+  // await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFileUrl);
+  const { timestamp } = await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFileUrl);
 
   // Now, get the output directory
   const outputDirectory = path.resolve(__dirname, '..', 'src');
