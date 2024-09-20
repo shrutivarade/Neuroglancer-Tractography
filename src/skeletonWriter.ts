@@ -3,19 +3,38 @@ import path from 'path';
 
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
+/**
+ * Represents a 3D vertex with coordinates.
+ * @interface
+ */
 export interface Vertex {
   x: number;
   y: number;
   z: number;
 }
 
+/**
+ * Represents an edge connecting two vertices by their indices.
+ * @interface
+ */
 export interface Edge {
   vertex1: number;
   vertex2: number;
 }
 
+/**
+ * Provides utilities for writing skeleton data to files and uploading them to AWS S3.
+ */
 export class SkeletonWriter {
 
+  /**
+   * Writes skeleton data including vertices, edges, and orientations to a binary file.
+   * @static
+   * @param {Vertex[]} vertices - The list of vertices to write.
+   * @param {Edge[]} edges - The list of edges connecting the vertices.
+   * @param {number[][]} orientations - The orientations of each vertex.
+   * @param {string} outputFilePath - The file path where the binary data will be written.
+   */
   static writeSkeleton(vertices: Vertex[], edges: Edge[], orientations: number[][], outputFilePath: string) {
     fs.mkdirSync(path.dirname(outputFilePath), { recursive: true });
 
@@ -62,7 +81,11 @@ export class SkeletonWriter {
     console.log(`Skeleton written to ${outputFilePath}`);
   }
 
-  
+  /**
+   * Writes metadata about the skeleton data structure to a JSON file.
+   * @static
+   * @param {string} infoFilePath - The file path where the skeleton info will be written.
+   */
   static writeSkeletonInfo(infoFilePath: string) {
     fs.mkdirSync(path.dirname(infoFilePath), { recursive: true });
 
@@ -85,7 +108,12 @@ export class SkeletonWriter {
     console.log(`Skeleton info file written to ${infoFilePath}`);
   }
 
-  
+  /**
+   * Writes properties metadata for the skeleton to a JSON file.
+   * @static
+   * @param {string} propFilePath - The file path where the properties info will be written.
+   */
+
   static writePropInfo(propFilePath: string) {
     fs.mkdirSync(path.dirname(propFilePath), { recursive: true });
 
@@ -102,7 +130,14 @@ export class SkeletonWriter {
     console.log(`Prop info file written to ${propFilePath}`);
   }
 
-  
+  /**
+   * Generates file paths for the binary, property, and skeleton info files based on a timestamp.
+   * TimeStamp is used for having unique filename.
+   * @static
+   * @param {string} outputDirectory - The output directory for the files.
+   * @param {string} timestamp - The timestamp used to format the file paths.
+   * @returns {{ binaryFilePath: string, propInfoFilePath: string, skeletonInfoFilePath: string }}
+   */
   static generateSkeletonFilePaths(outputDirectory: string, timestamp: string) {
 
     // Build the file paths with the formatted timestamp
@@ -117,6 +152,12 @@ export class SkeletonWriter {
     };
   }
 
+  /**
+   * Uploads a directory of files to AWS S3.
+   * @static
+   * @param {string} outputDirectory - The directory containing the files to upload.
+   * @param {string} timestamp - The timestamp used to organize the files in S3.
+   */
   static async uploadSkeletonFilePathsToS3(outputDirectory: string, timestamp: string) {
   // Initialize the S3 client
     const s3Client = new S3Client({
@@ -144,6 +185,14 @@ export class SkeletonWriter {
     console.log('Uploaded generated files to S3.');
   }
 
+  /**
+   * Iteratively uploads all files from a local directory to an AWS S3 bucket.
+   * @static
+   * @param {S3Client} s3Client - The AWS S3 client used for the upload.
+   * @param {string} bucketName - The name of the S3 bucket.
+   * @param {string} localDirectory - The local directory containing the files to upload.
+   * @param {string} s3DestinationPath - The destination path in the S3 bucket.
+   */
   static async uploadDirectoryToS3(
     s3Client: S3Client,
     bucketName: string,
@@ -177,6 +226,12 @@ export class SkeletonWriter {
     }
   }
 
+  /**
+   * Interatively collects all file paths in a directory.
+   * @static
+   * @param {string} dir - The directory to scan.
+   * @returns {string[]} An array of file paths found in the directory.
+   */
   static getAllFilesInDirectory(dir: string): string[] {
     let results: string[] = [];
 

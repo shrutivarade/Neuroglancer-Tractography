@@ -1,14 +1,19 @@
 import * as math from 'mathjs';
 import { multiply } from 'mathjs';
 import { TrkHeader } from './trkHeader';
-// import fs from 'fs';
-// import path from 'path';
 
-
+/**
+ * Provides methods for converting voxel coordinates to RAS coordinates using affine transformations.
+ */
 export class VoxelToRASConverter {
-    // Convert voxel to RAS using the affine matrix
+    
+    /**
+     * Applies an affine transformation to a 3D point to convert voxel coordinates to RAS coordinates.
+     * @param {number[]} point - The voxel coordinates to transform.
+     * @param {number[][]} aff - The 4x4 affine transformation matrix.
+     * @returns {number[]} The RAS coordinates resulting from the transformation.
+     */
     static applyAffineMatrix(point: number[], aff: number[][]): number[] {
-
         const [x, y, z] = point;
         const transformed = [
             aff[0][0] * x + aff[0][1] * y + aff[0][2] * z + aff[0][3],
@@ -18,13 +23,13 @@ export class VoxelToRASConverter {
         return transformed;
     }
 
-
-
-    // Function to compute affine matrix from voxelmm space to RAS+ mm space
+    /**
+     * Applies an affine transformation to a 3D point to convert voxel coordinates to RAS coordinates.
+     * @param {number[]} point - The voxel coordinates to transform.
+     * @param {number[][]} aff - The 4x4 affine transformation matrix.
+     * @returns {number[]} The RAS coordinates resulting from the transformation.
+     */
     static getAffineToRasmm(header: TrkHeader): number[][] {
-
-        // const outputFilePath = path.join(__dirname, 'track_data.txt');
-        // const writeStream = fs.createWriteStream(outputFilePath, { flags: 'a' });
 
         // Create an identity matrix for the affine transformation
         let affine = math.identity(4) as math.Matrix;
@@ -42,35 +47,21 @@ export class VoxelToRASConverter {
             offset.set([i, 3], -0.5);
         }
         affine = math.multiply(offset, affine) as math.Matrix;
-        // console.log("Affine:", affine);
 
         // Apply Orientation: If the voxel order implied by the affine does not match the voxel order in the TRK header, change the orientation.
-        let vox_order = header.voxel_order;
-        // console.log(typeof vox_order)
-
+        const vox_order = header.voxel_order;
         const affine_ornt = VoxelToRASConverter.aff2axcodes(header.vox_to_ras);
-        //  writeStream.write(`\n"Step 3: Affine Orientation (axcodes):", ${affine_ornt}`);
-
         // Convert voxel order to orientation array
-        const header_ornt = VoxelToRASConverter.axcodes2ornt(vox_order.split(''));
-        //  writeStream.write(`"Header Orientation Array:", ${header_ornt}`);
-
+        const header_ornt = VoxelToRASConverter.axcodes2orntTrans(vox_order.split(''));
         // Convert affine orientation string to orientation array
-        const affine_ornt_array = VoxelToRASConverter.axcodes2ornt(affine_ornt);
-        //  writeStream.write(`" Affine Orientation Array:", ${affine_ornt_array}`);
-
+        const affine_ornt_array = VoxelToRASConverter.axcodes2orntTrans(affine_ornt);
         // Create a transformation between the header and affine orientations
         const ornt = VoxelToRASConverter.orntTransform(header_ornt, affine_ornt_array)
-
         // Compute the affine transformation matrix M
         const M = VoxelToRASConverter.invOrntAff(ornt, header.dim);
-        //  writeStream.write(`"Affine Transformation Matrix (M):", ${M}`);
-
         // Update the affine matrix by applying M to the existing affine matrix
-        const affine_transformed = multiply(math.matrix(M), math.matrix(affine)).toArray();
-        //  writeStream.write(`"Updated Affine Matrix:", ${affine_transformed}\n`);
 
-        // Apply voxel_to_ras transformation matrix from the header
+        const affine_transformed = multiply(math.matrix(M), math.matrix(affine)).toArray();
         const voxelToRASMatrix = math.matrix(header.vox_to_ras);
         const affine_voxmm_to_rasmm = math.multiply(voxelToRASMatrix, affine_transformed) as math.Matrix;
 
@@ -79,12 +70,22 @@ export class VoxelToRASConverter {
 
     }
 
-    // Function to convert affine matrix to axis direction codes
+    /**
+     * Converts an affine matrix to axis direction codes.
+     * @param {number[][]} aff - The affine transformation matrix.
+     * @param {string[][]} [labels=[['L', 'R'], ['P', 'A'], ['I', 'S']]] - Optional labels representing the axis directions.
+     * @returns {string[]} An array of strings representing the axis directions.
+     */
     static aff2axcodes(aff: number[][], labels: [string, string][] = [['L', 'R'], ['P', 'A'], ['I', 'S']]): string[] {
         const ornt = VoxelToRASConverter.io_orientation(aff);
-        return VoxelToRASConverter.ornt2axcodes(ornt, labels);
+        return VoxelToRASConverter.orntInfo2axcodes(ornt, labels);
     }
-    // Function to compute orientation from affine matrix
+
+    /**
+     * Computes the orientation of the axes from an affine matrix using Singular Value Decomposition.
+     * @param {number[][]} aff - The affine transformation matrix.
+     * @returns {number[][]} An array representing the orientation of each axis.
+     */
     static io_orientation(aff: number[][]): number[][] {
         const n = aff.length - 1;
         const m = aff[0].length - 1;
@@ -118,8 +119,14 @@ export class VoxelToRASConverter {
 
         return orientation;
     }
-    // Function to convert orientation to axis direction labels
-    static ornt2axcodes(ornt: number[][], labels: [string, string][] = [['L', 'R'], ['P', 'A'], ['I', 'S']]): string[] {
+
+    /**
+     * Converts orientation information into axis direction labels.
+     * @param {number[][]} ornt - The orientation information.
+     * @param {string[][]} [labels=[['L', 'R'], ['P', 'A'], ['I', 'S']]] - Optional labels representing the axis directions.
+     * @returns {string[]} An array of strings representing the axis directions.
+     */
+    static orntInfo2axcodes(ornt: number[][], labels: [string, string][] = [['L', 'R'], ['P', 'A'], ['I', 'S']]): string[] {
         return ornt.map(([axis, direction]) => {
             if (isNaN(axis)) {
                 return '';
@@ -135,8 +142,13 @@ export class VoxelToRASConverter {
         });
     }
 
-    // Function to convert voxel order to orientation array
-    static axcodes2ornt(axcodes: string[], labels?: [string, string][]): number[][] {
+    /**
+     * Converts axis codes to an orientation array.
+     * @param {string[]} axcodes - The axis codes.
+     * @param {string[][]} [labels=[['L', 'R'], ['P', 'A'], ['I', 'S']]] - Optional labels representing the axis directions.
+     * @returns {number[][]} An array representing the orientation of each axis.
+     */
+    static axcodes2orntTrans(axcodes: string[], labels?: [string, string][]): number[][] {
         // Default labels corresponding to RAS coordinate system
         labels = labels || [['L', 'R'], ['P', 'A'], ['I', 'S']];
 
@@ -166,7 +178,12 @@ export class VoxelToRASConverter {
         return ornt;
     }
 
-    // Funtion to convert orientation array to orientation transform
+    /**
+     * Computes the transformation required to match a starting orientation to an ending orientation.
+     * @param {number[][]} startOrnt - The starting orientation.
+     * @param {number[][]} endOrnt - The desired ending orientation.
+     * @returns {number[][]} An array representing the transformation matrix to adjust the orientation.
+     */
     static orntTransform(startOrnt: number[][], endOrnt: number[][]): number[][] {
         if (startOrnt.length !== endOrnt.length || startOrnt[0].length !== 2 || endOrnt[0].length !== 2) {
             throw new Error('The orientations must have the same shape and each should be an (n,2) array');
@@ -201,12 +218,18 @@ export class VoxelToRASConverter {
         return result;
     }
 
-    // Function to compute the inverse of the orientation transform
+    /**
+     * Computes the inverse of the orientation transform for an affine matrix.
+     * @param {number[][]} orntInput - The orientation information.
+     * @param {number[]} shapeInput - The shape of the data corresponding to the orientation.
+     * @returns {number[][]} An array representing the inverse transformation matrix.
+     */
     static invOrntAff(orntInput: number[][], shapeInput: number[]) {
         const ornt = math.matrix(orntInput);
         const p = ornt.size()[0];
         const shape = shapeInput.slice(0, p);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const axisTranspose = ornt.toArray().map((row: any) => row[0]);
         const identityMatrix = math.identity(p + 1) as math.Matrix;
 
@@ -218,6 +241,7 @@ export class VoxelToRASConverter {
         });
 
         // Create undo_flip as a diagonal matrix
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const flips = ornt.toArray().map((row: any) => row[1]);
         let undoFlip = math.diag([...flips, 1.0]) as math.Matrix;
 
@@ -236,12 +260,8 @@ export class VoxelToRASConverter {
 
         // Compose the transformations to get the final affine transformation matrix
         const transformAffine = math.multiply(undoFlip, undoReorder);
-
         return transformAffine;
     }
-
-
-
 }
 
 

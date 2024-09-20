@@ -1,3 +1,7 @@
+/**
+ * Represents the header of a Track (TRK) file, describing how track data is structured.
+ * @interface
+ */
 export interface TrkHeader {
     id_string: string;
     dim: [number, number, number];
@@ -21,9 +25,17 @@ export interface TrkHeader {
     hdr_size: number;
 }
 
+/**
+ * Handles reading and processing the header of TRK files.
+ */
 export class TrkHeaderProcessor {
 
-    
+    /**
+     * Reads the header from a buffer and returns a structured object.
+     * @static
+     * @param {Buffer} buffer The buffer containing binary data of a TRK file header.
+     * @returns {TrkHeader} The parsed header as a structured object.
+     */
     static readTrkHeader(buffer: Buffer): TrkHeader {
 
         let offset = 0;
@@ -138,6 +150,11 @@ export class TrkHeaderProcessor {
         return header;
     }
 
+    /**
+     * Prints detailed information about the TRK file header to the console.
+     * @static
+     * @param {TrkHeader} header The TRK header to be printed.
+     */
     static printTrkHeader(header: TrkHeader): void {
         console.log('--- TRK File Metadata ---');
         console.log(`ID String: ${header.id_string}`);

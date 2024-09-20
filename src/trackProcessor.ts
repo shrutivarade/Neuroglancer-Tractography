@@ -5,21 +5,43 @@ import { VoxelToRASConverter } from './voxelToRASConverter';
 import { SkeletonWriter, Vertex, Edge } from './skeletonWriter';
 import { TrkHeader, TrkHeaderProcessor } from './trkHeader';
 
+/**
+ * Represents the processing state of track data, indicating progress in bytes and tracks.
+ * @interface
+ */
 export interface ProcessState {
     byteOffset: number;
     trackNumber: number;
     offset: number;
 }
 
+/**
+ * Represents a 3D orientation vector.
+ * @typedef Orientation
+ */
 type Orientation = [number, number, number];
 
+/**
+ * Manages the processing of track data from TRK files, including streaming, and processing track data.
+ */
 export class TrackProcessor {
     globalHeader: TrkHeader | null;
 
+    /**
+     * Initializes a new instance of the TrackProcessor class with an optional global header.
+     * @param {TrkHeader | null} globalHeader - The global header of the TRK file.
+     */
     constructor(globalHeader: TrkHeader | null = null) {
         this.globalHeader = globalHeader;
     }
 
+    /**
+     * Streams the TRK file header from a URL and processes it to set the global header.
+     * @async
+     * @param {string} url - The URL of the TRK file.
+     * @param {number} start - The start byte position for the range request.
+     * @param {number} end - The end byte position for the range request.
+     */
     async streamAndProcessHeader(url: string, start: number, end: number) {
         try {
             const response = await axios.get(url, {
@@ -36,6 +58,12 @@ export class TrackProcessor {
         }
     }
 
+    /**
+     * Computes the 3D orientation vectors for track points, normalizing them to unit vectors.
+     * @static
+     * @param {number[][]} points - The array of 3D points for which to compute orientations.
+     * @returns {number[][]} An array of normalized 3D orientation vectors.
+     */
     static computeOrientation(points: number[][]): number[][] {
         // Step 1: Compute directed orientation of each edge
         let orient: number[][] = points.slice(1).map((point, i) => {
@@ -47,7 +75,7 @@ export class TrackProcessor {
         });
 
         // Step 2: Compute orientation for each vertex
-        let originalOrient = [...orient];
+        const originalOrient = [...orient];
         orient = [
             ...originalOrient.slice(0, 1), // First vertex (only one edge)
             ...originalOrient.slice(0, -1).map((o, i) => {
@@ -71,6 +99,14 @@ export class TrackProcessor {
         return orient;
     }
 
+    /**
+     * Processes the track data for selected track numbers and writes the result to disk.
+     * @async
+     * @param {number[]} randomTrackNumbers - The array of track numbers to be processed.
+     * @param {number} trackNumber - The current track number being processed.
+     * @param {string} filePath - The file path of the TRK file.
+     * @returns {Promise<{processState: ProcessState; timestamp: string}>} A promise that resolves to the processing state and a timestamp.
+     */
     async processTrackData( randomTrackNumbers: number[], trackNumber: number, filePath: string): Promise<{ processState: ProcessState; timestamp: string }> {
         
         // Get the current date and time
@@ -176,6 +212,12 @@ export class TrackProcessor {
         }
     }
 
+    /**
+     * Shuffles and selects a random number of track indices from a total number of tracks.
+     * @param {number} totalTracks - The total number of tracks available.
+     * @param {number} numTracks - The number of tracks to select.
+     * @returns {number[]} An array of randomly selected track indices.
+     */
     getRandomTrackIndices(totalTracks: number, numTracks: number): number[] {
         const trackIndices = Array.from({ length: totalTracks }, (_, i) => i + 1); // Create an array of track numbers
         for (let i = trackIndices.length - 1; i > 0; i--) {
@@ -185,6 +227,11 @@ export class TrackProcessor {
         return trackIndices.slice(0, numTracks); // Return the first `numTracks` tracks
     }
 
+    /**
+     * Loads the binary data of a file from a URL or local path into a buffer and creates a DataView for processing.
+     * @param {string} filePath - The URL or local path of the file to load.
+     * @returns {Promise<{dataView: DataView; buffer: Buffer}>} A promise that resolves to the DataView and buffer of the file.
+     */
     loadFileBuffer(filePath: string) {
         if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
             // Handle URL loading with axios
