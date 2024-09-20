@@ -1,8 +1,11 @@
 {
   "devDependencies": {
     "@eslint/js": "^9.10.0",
+    "@stylistic/eslint-plugin": "^2.8.0",
     "@types/mathjs": "^9.4.1",
     "@types/node": "^22.5.0",
+    "@typescript-eslint/eslint-plugin": "^8.6.0",
+    "@typescript-eslint/parser": "^8.6.0",
     "eslint": "^9.10.0",
     "globals": "^15.9.0",
     "ts-node": "^10.9.2",
