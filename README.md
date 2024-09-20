@@ -7,7 +7,7 @@ This project is used to:
 - Visualize the data in Neuroglancer.
 
 ## Video Demo
-![Watch the video](https://github.com/shrutivarade/Neuroglancer-Tractography/blob/main/src/gfx/Tract_viz_demo.mov)
+(https://github.com/shrutivarade/Neuroglancer-Tractography/blob/main/src/gfx/Tract_viz_demo.mov)
 
 ## Graphics
 ![Track Visualization](src/gfx/track_visualization.png "Visualizing Track Data")
