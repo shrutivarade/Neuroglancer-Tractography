@@ -28,7 +28,7 @@ async function main() {
     return;
   }
 
-  /* Process all the tracks from starting from 1 and generate precomuted file for all
+  /* Process all the tracks from starting from 1 and generate precomputed file for all
   the tracks present in the randomTrackNumbers array. */
   const totalTracks = trackProcessor.globalHeader.n_count;
   const randomTrackNumbers = trackProcessor.getRandomTrackIndices(totalTracks, 1000);

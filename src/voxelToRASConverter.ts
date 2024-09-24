@@ -25,6 +25,10 @@ export class VoxelToRASConverter {
 
     /**
      * Applies an affine transformation to a 3D point to convert voxel coordinates to RAS coordinates.
+     * 
+     * This function is derived from the `getAffineToRasmm()` function in the nibabel library.
+     * See the original implementation here: [Nibabel Repository](https://github.com/nipy/nibabel/blob/83eaf0b55be9e9079bf9ad64975b71c22523f5f0/nibabel/streamlines/trk.py#L60C5-L60C33)
+     * 
      * @param {number[]} point - The voxel coordinates to transform.
      * @param {number[][]} aff - The 4x4 affine transformation matrix.
      * @returns {number[]} The RAS coordinates resulting from the transformation.
