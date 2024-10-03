@@ -1,6 +1,4 @@
 import { TrackProcessor } from './trackProcessor';
-import { SkeletonWriter } from "./skeletonWriter";
-import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -19,7 +17,7 @@ async function main() {
   // Upload data from cloud
   const trkFileUrl = 'https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67';
   // Upload data from local machine
-  const trkFilePath = '/Users/shrutiv/MyDocuments/GitHub/d4ac43bd-6896-4adf-a911-82edbea21f67.trk';
+  // const trkFilePath = '/Users/shrutiv/MyDocuments/GitHub/d4ac43bd-6896-4adf-a911-82edbea21f67.trk';
   
   /* Process the header informtion from first 1000 bytes (0-999). */
   await trackProcessor.streamAndProcessHeader(trkFileUrl, 0, 999);
@@ -34,13 +32,10 @@ async function main() {
   const randomTrackNumbers = trackProcessor.getRandomTrackIndices(totalTracks, 1000);
   // const randomTrackNumbers = [1]; // process only single track
 
+  await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFileUrl);
+  // await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFilePath);
 
-  // const { timestamp } = await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFileUrl);
-  const { timestamp } = await trackProcessor.processTrackData(randomTrackNumbers, 1, trkFilePath);
 
-  // Now, get the output directory
-  const outputDirectory = path.resolve(__dirname, '..', 'src');
-  await SkeletonWriter.uploadSkeletonFilePathsToS3(outputDirectory, timestamp);
 
 }
 
