@@ -1,8 +1,8 @@
 import { TrackProcessor, ProcessState } from './trackProcessor';
 
 async function main() {
-  const trkFileUrl = 'https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67';
-  
+  // const trkFileUrl = 'https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911-82edbea21f67';
+  const trkFileUrl = 's3://linc-brain-mit-prod-us-east-2/blobs/3b0/8ce/3b08ce53-696a-4ce8-8b8f-e8cde24ef942';
 
   // *****************************Header****************************
   const headerChunkSize = 1000;
