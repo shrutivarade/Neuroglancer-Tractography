@@ -1,0 +1,18 @@
+{
+  "@type": "neuroglancer_segment_properties",
+  "inline": {
+    "ids": [
+      "1",
+      "2"
+    ],
+    "properties": [
+      {
+        "id": "label",
+        "type": "label",
+        "values": [
+          "1"
+        ]
+      }
+    ]
+  }
+}
