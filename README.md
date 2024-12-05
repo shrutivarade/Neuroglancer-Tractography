@@ -16,3 +16,5 @@ Trk: https://dandiarchive.s3.amazonaws.com/blobs/d4a/c43/d4ac43bd-6896-4adf-a911
 
 ## Graphics
 ![Track Visualization](src/gfx/track_visualization.png "Visualizing Track Data")
+![Track Visualization](src/gfx/warm-heatmap.png "warm-heatmap")
+![Track Visualization](src/gfx/cold-heatmap.png "cold-heatmap")
